@@ -94,15 +94,17 @@ npx cap open @capacitor-community/electron
 ```
 
 ### 2. Package into a `.exe` Installer
-1. Navigate to the electron directory:
-   ```bash
-   cd electron
-   ```
-2. Run the build command:
+1. **Rebuild the web assets** (from the `qeraat-native` root):
    ```bash
    npm run build
+   npx cap sync electron
    ```
-3. The installer (`.exe`) and portable versions will be generated in the `electron/dist` folder.
+2. **Build and package the Electron app**:
+   ```bash
+   cd electron
+   npm run build         # Compiles the Electron main process
+   npm run electron:make # Creates the .exe installer in electron/dist
+   ```
 
 ---
 
