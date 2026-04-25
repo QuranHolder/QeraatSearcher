@@ -41,9 +41,9 @@ export async function initDatabase(): Promise<Database> {
 // ─────────────────────────────────────────────
 // Helper: build WHERE clauses from SearchOptions
 // ─────────────────────────────────────────────
-function buildFilterClauses(opts: SearchOptions): { where: string[]; params: Record<string, unknown> } {
+function buildFilterClauses(opts: SearchOptions): { where: string[]; params: any } {
     const where: string[] = [];
-    const params: Record<string, unknown> = {};
+    const params: any = {};
 
     // Include tags (OR logic)
     if (opts.includeTags && opts.includeTags.length > 0) {

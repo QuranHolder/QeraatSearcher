@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
 import { searchText, searchRoot, searchTag, getAllTags, getAllQarees } from '../lib/sqljs-db';
 import { useLocale } from '../hooks/useLocale';

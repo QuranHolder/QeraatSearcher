@@ -11,12 +11,10 @@ function QareeCard({
     n,
     item,
     qareeMap,
-    dict,
 }: {
     n: number;
     item: QuranData;
     qareeMap: Record<string, string>;
-    dict: Record<string, Record<string, string>>;
 }) {
     const qKey = `Q${n}` as keyof QuranData;
     const r1Key = `R${n}_1` as keyof QuranData;
@@ -72,12 +70,10 @@ function ReadingCard({
     item,
     qareeMap,
     dict,
-    isRtl,
 }: {
     item: QuranData;
     qareeMap: Record<string, string>;
     dict: Record<string, Record<string, string>>;
-    isRtl: boolean;
 }) {
     const [copied, setCopied] = useState(false);
 
@@ -164,7 +160,7 @@ function ReadingCard({
             <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
                 <div className="grid grid-cols-5 gap-1.5">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                        <QareeCard key={n} n={n} item={item} qareeMap={qareeMap} dict={dict} />
+                        <QareeCard key={n} n={n} item={item} qareeMap={qareeMap} />
                     ))}
                 </div>
             </div>
@@ -264,7 +260,6 @@ export default function AyaPage() {
                                 item={item}
                                 qareeMap={qareeMap}
                                 dict={dict as Record<string, Record<string, string>>}
-                                isRtl={isRtl}
                             />
                         ))}
                     </div>
