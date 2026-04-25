@@ -1,6 +1,9 @@
 export interface QuranSora {
   sora: number;      // PK
   sora_name: string;
+  sora_name_tshkeel?: string;
+  sora_type?: string;
+  ayat_number?: number;
 }
 
 export interface BookQuran {
@@ -8,16 +11,24 @@ export interface BookQuran {
   sora: number;      // FK -> QuranSora.sora
   aya: number;
   text: string;
+  text_full?: string;
+  textU?: string;
 }
 
 export interface Qareemaster {
-  qkey: string;       // PK, e.g., 'Q1'
+  id?: number;
+  qkey: string;       // PK, e.g., 'Q1', 'R1_1', 'R1_2'
   name: string;
+  groups?: string;
 }
 
 export interface Tagsmaster {
+  id?: number;
   tag: string;        // PK
   description: string;
+  qarees?: string;
+  category?: string;
+  srt?: number;
 }
 
 export interface ShawahidEntry {
@@ -41,22 +52,23 @@ export interface QuranData {
   qarees?: string;
   qareesrest?: string;
   
-  // Qira'at boolean flags (stored as text '1' or NULL in DB, maybe? Or integer 1/0)
-  // Documentation says: "Q1-Q10 (TEXT) ... NULL or 1"
-  Q1?: string; Q2?: string; Q3?: string; Q4?: string; Q5?: string;
-  Q6?: string; Q7?: string; Q8?: string; Q9?: string; Q10?: string;
+  // Qira'at boolean flags (NULL or 1)
+  Q1?: string | number; Q2?: string | number; Q3?: string | number;
+  Q4?: string | number; Q5?: string | number; Q6?: string | number;
+  Q7?: string | number; Q8?: string | number; Q9?: string | number;
+  Q10?: string | number;
 
   // R1_1 to R10_2
-  R1_1?: string; R1_2?: string;
-  R2_1?: string; R2_2?: string;
-  R3_1?: string; R3_2?: string;
-  R4_1?: string; R4_2?: string;
-  R5_1?: string; R5_2?: string;
-  R6_1?: string; R6_2?: string;
-  R7_1?: string; R7_2?: string;
-  R8_1?: string; R8_2?: string;
-  R9_1?: string; R9_2?: string;
-  R10_1?: string; R10_2?: string;
+  R1_1?: string | number; R1_2?: string | number;
+  R2_1?: string | number; R2_2?: string | number;
+  R3_1?: string | number; R3_2?: string | number;
+  R4_1?: string | number; R4_2?: string | number;
+  R5_1?: string | number; R5_2?: string | number;
+  R6_1?: string | number; R6_2?: string | number;
+  R7_1?: string | number; R7_2?: string | number;
+  R8_1?: string | number; R8_2?: string | number;
+  R9_1?: string | number; R9_2?: string | number;
+  R10_1?: string | number; R10_2?: string | number;
 
   tags?: string;        // Comma separated tags
   shawahid?: string;
@@ -73,4 +85,16 @@ export interface QuranData {
   root?: string;
   rasaya?: number; // 0 or 1
   Done?: number;
+
+  // Joined fields (added at query time)
+  sora_name?: string;
+}
+
+export interface SearchOptions {
+  wholeWord?: boolean;
+  includeTags?: string[];
+  excludeTags?: string[];
+  includeQarees?: string[];   // e.g. ['Q1', 'Q3']
+  excludeHafsa?: boolean;     // ifnull(r5_2,0)<>1
+  limit?: number;
 }

@@ -19,9 +19,22 @@
     "resultsFor": "Results for",
     "found": "found",
     "noResults": "No results found.",
-    "sora": "Sora",
+    "sora": "Sura",
     "aya": "Aya",
-    "rootLabel": "Root:"
+    "rootLabel": "Root:",
+    "filters": "Filters",
+    "includeTags": "Include Tags",
+    "excludeTags": "Exclude Tags",
+    "filterQarees": "Filter Readers",
+    "excludeHafsa": "Exclude matches with Hafs",
+    "wholeWord": "Whole word",
+    "copy": "Copy",
+    "share": "Share",
+    "copied": "Copied!",
+    "clearFilters": "Clear Filters",
+    "showFilters": "Show Filters",
+    "hideFilters": "Hide Filters",
+    "noTag": "No tag"
   },
   "aya": {
     "notFound": "Aya Not Found",
@@ -31,9 +44,12 @@
     "previous": "Previous",
     "next": "Next",
     "readings": "Readings & Variations",
-    "id": "ID:",
-    "readingLabel": "Reading:",
-    "readers": "Readers (Qarra'):"
+    "readingLabel": "Reading",
+    "readers": "Readers",
+    "narrator": "Narrator",
+    "copyResult": "Copy",
+    "shareResult": "Share",
+    "copied": "Copied!"
   },
   "common": {
     "language": "Language",

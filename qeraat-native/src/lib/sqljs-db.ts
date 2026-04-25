@@ -1,5 +1,5 @@
 import type { SqlJsStatic, Database } from 'sql.js';
-import type { BookQuran, QuranData, QuranSora } from './types';
+import type { BookQuran, QuranData, QuranSora, Qareemaster, Tagsmaster, SearchOptions } from './types';
 
 let SQL: SqlJsStatic | null = null;
 let db: Database | null = null;
@@ -10,8 +10,6 @@ let db: Database | null = null;
  */
 function getBaseUrl(): string {
     if (typeof window !== 'undefined') {
-        // In Capacitor/Electron the origin may be capacitor:// or file://
-        // We always serve assets relative to the root
         return window.location.origin;
     }
     return '';
@@ -22,7 +20,6 @@ export async function initDatabase(): Promise<Database> {
 
     const baseUrl = getBaseUrl();
 
-    // Load sql.js
     if (!SQL) {
         const initSqlJs = (await import('sql.js')).default;
         SQL = await initSqlJs({
@@ -30,7 +27,6 @@ export async function initDatabase(): Promise<Database> {
         });
     }
 
-    // Fetch the SQLite database file
     const response = await fetch(`${baseUrl}/db/qeraat_data_v1.db`);
     if (!response.ok) {
         throw new Error(`Failed to fetch database: ${response.statusText}`);
@@ -41,11 +37,73 @@ export async function initDatabase(): Promise<Database> {
     return db;
 }
 
-export function searchText(db: Database, query: string, limit = 50): QuranData[] {
-    const stmt = db.prepare(
-        `SELECT * FROM quran_data WHERE sub_subject LIKE $q OR sub_subject1 LIKE $q LIMIT $limit`
-    );
-    stmt.bind({ $q: `%${query}%`, $limit: limit });
+// ─────────────────────────────────────────────
+// Helper: build WHERE clauses from SearchOptions
+// ─────────────────────────────────────────────
+function buildFilterClauses(opts: SearchOptions): { where: string[]; params: Record<string, unknown> } {
+    const where: string[] = [];
+    const params: Record<string, unknown> = {};
+
+    // Include tags (OR logic)
+    if (opts.includeTags && opts.includeTags.length > 0) {
+        const tagClauses = opts.includeTags.map((tag, i) => {
+            params[`$itag${i}`] = `%,${tag},%`;
+            return `(',' || ifnull(tags,'') || ',') LIKE $itag${i}`;
+        });
+        where.push(`(${tagClauses.join(' OR ')})`);
+    }
+
+    // Exclude tags (AND NOT logic)
+    if (opts.excludeTags && opts.excludeTags.length > 0) {
+        opts.excludeTags.forEach((tag, i) => {
+            params[`$etag${i}`] = `%,${tag},%`;
+            where.push(`(',' || ifnull(tags,'') || ',') NOT LIKE $etag${i}`);
+        });
+    }
+
+    // Include qarees (OR logic) — Q1..Q10
+    if (opts.includeQarees && opts.includeQarees.length > 0) {
+        const qClauses = opts.includeQarees.map(q => `ifnull(${q},0) = 1`);
+        where.push(`(${qClauses.join(' OR ')})`);
+    }
+
+    // Exclude Hafs: ifnull(r5_2,0)<>1
+    if (opts.excludeHafsa) {
+        where.push(`ifnull(R5_2,0)<>1`);
+    }
+
+    return { where, params };
+}
+
+// ─────────────────────────────────────────────
+// Search by text
+// ─────────────────────────────────────────────
+export function searchText(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
+    const limit = opts.limit ?? 200;
+    const { where, params } = buildFilterClauses(opts);
+
+    let textCondition: string;
+    if (opts.wholeWord) {
+        params['$q'] = query;
+        textCondition = `(sub_subject = $q OR sub_subject1 = $q)`;
+    } else {
+        params['$q'] = `%${query}%`;
+        textCondition = `(sub_subject LIKE $q OR sub_subject1 LIKE $q)`;
+    }
+    where.unshift(textCondition);
+
+    params['$limit'] = limit;
+
+    const sql = `
+        SELECT qd.*, qs.sora_name
+        FROM quran_data qd
+        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+        WHERE ${where.join(' AND ')}
+        LIMIT $limit
+    `;
+
+    const stmt = db.prepare(sql);
+    stmt.bind(params);
     const results: QuranData[] = [];
     while (stmt.step()) {
         results.push(stmt.getAsObject() as unknown as QuranData);
@@ -54,11 +112,27 @@ export function searchText(db: Database, query: string, limit = 50): QuranData[]
     return results;
 }
 
-export function searchRoot(db: Database, query: string, limit = 50): QuranData[] {
-    const stmt = db.prepare(
-        `SELECT * FROM quran_data WHERE root = $root LIMIT $limit`
-    );
-    stmt.bind({ $root: query, $limit: limit });
+// ─────────────────────────────────────────────
+// Search by root
+// ─────────────────────────────────────────────
+export function searchRoot(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
+    const limit = opts.limit ?? 200;
+    const { where, params } = buildFilterClauses(opts);
+
+    params['$root'] = query;
+    params['$limit'] = limit;
+    where.unshift(`root = $root`);
+
+    const sql = `
+        SELECT qd.*, qs.sora_name
+        FROM quran_data qd
+        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+        WHERE ${where.join(' AND ')}
+        LIMIT $limit
+    `;
+
+    const stmt = db.prepare(sql);
+    stmt.bind(params);
     const results: QuranData[] = [];
     while (stmt.step()) {
         results.push(stmt.getAsObject() as unknown as QuranData);
@@ -67,11 +141,33 @@ export function searchRoot(db: Database, query: string, limit = 50): QuranData[]
     return results;
 }
 
-export function searchTag(db: Database, query: string, limit = 50): QuranData[] {
-    const stmt = db.prepare(
-        `SELECT * FROM quran_data WHERE tags LIKE $q LIMIT $limit`
-    );
-    stmt.bind({ $q: `%${query}%`, $limit: limit });
+// ─────────────────────────────────────────────
+// Search by tag (visual tag filter — tag name exact match)
+// ─────────────────────────────────────────────
+export function searchTag(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
+    const limit = opts.limit ?? 200;
+    const { where, params } = buildFilterClauses(opts);
+
+    params['$q'] = `%${query}%`;
+    params['$limit'] = limit;
+    where.unshift(`(',' || ifnull(tags,'') || ',') LIKE '%,' || $q || ',%' OR tags LIKE $q`);
+
+    // Simpler approach for tag search
+    params['$tagExact'] = `%,${query},%`;
+    where.shift(); // remove the complex one above
+    params['$qLike'] = `%${query}%`;
+    where.unshift(`((',' || ifnull(tags,'') || ',') LIKE $tagExact OR tags LIKE $qLike)`);
+
+    const sql = `
+        SELECT qd.*, qs.sora_name
+        FROM quran_data qd
+        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+        WHERE ${where.join(' AND ')}
+        LIMIT $limit
+    `;
+
+    const stmt = db.prepare(sql);
+    stmt.bind(params);
     const results: QuranData[] = [];
     while (stmt.step()) {
         results.push(stmt.getAsObject() as unknown as QuranData);
@@ -80,10 +176,74 @@ export function searchTag(db: Database, query: string, limit = 50): QuranData[] 
     return results;
 }
 
+// ─────────────────────────────────────────────
+// Search by selected tags (multi-select visual filter)
+// ─────────────────────────────────────────────
+export function searchBySelectedTags(db: Database, tags: string[], opts: SearchOptions = {}): QuranData[] {
+    const limit = opts.limit ?? 200;
+    const { where, params } = buildFilterClauses({ ...opts, includeTags: undefined });
+
+    if (tags.length === 0) return [];
+
+    const tagClauses = tags.map((tag, i) => {
+        params[`$stag${i}`] = `%,${tag},%`;
+        return `(',' || ifnull(tags,'') || ',') LIKE $stag${i}`;
+    });
+    where.unshift(`(${tagClauses.join(' OR ')})`);
+    params['$limit'] = limit;
+
+    const sql = `
+        SELECT qd.*, qs.sora_name
+        FROM quran_data qd
+        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+        WHERE ${where.join(' AND ')}
+        LIMIT $limit
+    `;
+
+    const stmt = db.prepare(sql);
+    stmt.bind(params);
+    const results: QuranData[] = [];
+    while (stmt.step()) {
+        results.push(stmt.getAsObject() as unknown as QuranData);
+    }
+    stmt.free();
+    return results;
+}
+
+// ─────────────────────────────────────────────
+// Get all tags from tagsmaster
+// ─────────────────────────────────────────────
+export function getAllTags(db: Database): Tagsmaster[] {
+    const stmt = db.prepare(`SELECT * FROM tagsmaster ORDER BY srt ASC, tag ASC`);
+    const results: Tagsmaster[] = [];
+    while (stmt.step()) {
+        results.push(stmt.getAsObject() as unknown as Tagsmaster);
+    }
+    stmt.free();
+    return results;
+}
+
+// ─────────────────────────────────────────────
+// Get all qarees from qareemaster
+// ─────────────────────────────────────────────
+export function getAllQarees(db: Database): Qareemaster[] {
+    const stmt = db.prepare(`SELECT * FROM qareemaster ORDER BY id ASC`);
+    const results: Qareemaster[] = [];
+    while (stmt.step()) {
+        results.push(stmt.getAsObject() as unknown as Qareemaster);
+    }
+    stmt.free();
+    return results;
+}
+
+// ─────────────────────────────────────────────
+// Get aya detail page data
+// ─────────────────────────────────────────────
 export function getAya(db: Database, ayaIndex: number): {
     aya: BookQuran | null;
     sora: QuranSora | null;
     quranData: QuranData[];
+    qareeMap: Record<string, string>;
 } {
     // Get aya text
     const ayaStmt = db.prepare(`SELECT * FROM book_quran WHERE aya_index = $idx`);
@@ -91,7 +251,7 @@ export function getAya(db: Database, ayaIndex: number): {
     const aya = ayaStmt.step() ? (ayaStmt.getAsObject() as unknown as BookQuran) : null;
     ayaStmt.free();
 
-    if (!aya) return { aya: null, sora: null, quranData: [] };
+    if (!aya) return { aya: null, sora: null, quranData: [], qareeMap: {} };
 
     // Get sora info
     const soraStmt = db.prepare(`SELECT * FROM quran_sora WHERE sora = $sora`);
@@ -101,7 +261,9 @@ export function getAya(db: Database, ayaIndex: number): {
 
     // Get readings
     const dataStmt = db.prepare(
-        `SELECT * FROM quran_data WHERE aya_index = $idx ORDER BY id ASC`
+        `SELECT qd.*, qs.sora_name FROM quran_data qd 
+         LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+         WHERE qd.aya_index = $idx ORDER BY qd.id ASC`
     );
     dataStmt.bind({ $idx: ayaIndex });
     const quranData: QuranData[] = [];
@@ -110,5 +272,14 @@ export function getAya(db: Database, ayaIndex: number): {
     }
     dataStmt.free();
 
-    return { aya, sora, quranData };
+    // Build qaree name map
+    const qareeMap: Record<string, string> = {};
+    const qareeStmt = db.prepare(`SELECT qkey, name FROM qareemaster`);
+    while (qareeStmt.step()) {
+        const row = qareeStmt.getAsObject() as { qkey: string; name: string };
+        qareeMap[row.qkey] = row.name;
+    }
+    qareeStmt.free();
+
+    return { aya, sora, quranData, qareeMap };
 }

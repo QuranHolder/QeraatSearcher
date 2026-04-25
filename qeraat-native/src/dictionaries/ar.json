@@ -21,7 +21,20 @@
     "noResults": "لم يتم العثور على نتائج.",
     "sora": "سورة",
     "aya": "آية",
-    "rootLabel": "الجذر:"
+    "rootLabel": "الجذر:",
+    "filters": "الفلاتر",
+    "includeTags": "تضمين وسوم",
+    "excludeTags": "استثناء وسوم",
+    "filterQarees": "تصفية القراء",
+    "excludeHafsa": "استثناء ما وافق حفصاً",
+    "wholeWord": "كلمة كاملة",
+    "copy": "نسخ النتيجة",
+    "share": "مشاركة",
+    "copied": "تم النسخ!",
+    "clearFilters": "مسح الفلاتر",
+    "showFilters": "إظهار الفلاتر",
+    "hideFilters": "إخفاء الفلاتر",
+    "noTag": "بلا وسم"
   },
   "aya": {
     "notFound": "الآية غير موجودة",
@@ -31,9 +44,12 @@
     "previous": "السابق",
     "next": "التالي",
     "readings": "القراءات والاختلافات",
-    "id": "المعرف:",
-    "readingLabel": "القراءة:",
-    "readers": "القراء:"
+    "readingLabel": "القراءة",
+    "readers": "القراء",
+    "narrator": "الراوي",
+    "copyResult": "نسخ",
+    "shareResult": "مشاركة",
+    "copied": "تم النسخ!"
   },
   "common": {
     "language": "اللغة",
