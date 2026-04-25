@@ -94,8 +94,8 @@ function ResultCard({ item }: { item: QuranData }) {
     };
 
     const soraAya = item.sora_name
-        ? `(${item.sora_name}:${item.aya})`
-        : `(${item.sora}:${item.aya})`;
+        ? `${item.sora_name}:${item.aya}`
+        : `${item.sora}:${item.aya}`;
 
     const subject = item.sub_subject1 || item.sub_subject || '';
     const showResultNew = item.resultnew;
@@ -103,43 +103,53 @@ function ResultCard({ item }: { item: QuranData }) {
     return (
         <Link
             to={`/aya/${item.aya_index}`}
-            className="block p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-200 group"
+            className="block p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/50 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 group relative overflow-hidden"
         >
-            <div className="flex justify-between items-start gap-3">
+            {/* Background Accent */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl -mr-12 -mt-12 group-hover:bg-blue-500/10 transition-colors" />
+
+            <div className="flex justify-between items-start gap-4 relative z-10">
                 {/* Main content */}
                 <div className="flex-1 min-w-0">
-                    {/* Sora:Aya badge */}
-                    <span className="inline-block mb-2 text-xs font-medium px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full border border-blue-100 dark:border-blue-800 font-arabic">
-                        {soraAya}
-                    </span>
+                    <div className="flex items-center gap-3 mb-2.5">
+                        {/* Sora:Aya badge */}
+                        <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full shadow-sm font-arabic">
+                            ({soraAya})
+                        </span>
+                        
+                        {/* Reading ID Badge (Subtle) */}
+                        <span className="text-[10px] text-gray-400 font-medium">#{item.id}</span>
+                    </div>
 
                     {/* Subject */}
-                    <p className="font-arabic font-bold text-right text-base leading-relaxed" dir="rtl">
-                        {subject}
-                        {showResultNew && (
-                            <span className="text-gray-500 dark:text-gray-400 font-normal">: {item.resultnew}</span>
+                    <div className="flex flex-col gap-1.5">
+                        <p className="font-arabic font-bold text-right text-lg leading-relaxed text-gray-800 dark:text-gray-100" dir="rtl">
+                            {subject}
+                            {showResultNew && (
+                                <span className="text-blue-600 dark:text-blue-400 font-medium"> : {item.resultnew}</span>
+                            )}
+                        </p>
+
+                        {/* Reading */}
+                        {item.reading && (
+                            <p className="text-sm text-gray-600 dark:text-gray-300 font-arabic leading-relaxed text-right" dir="rtl">
+                                {item.reading}
+                            </p>
                         )}
-                    </p>
 
-                    {/* Reading */}
-                    {item.reading && (
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 font-arabic" dir="rtl">
-                            {item.reading}
-                        </p>
-                    )}
+                        {/* Qarees rest */}
+                        {item.qareesrest && (
+                            <p className="text-xs text-gray-400 dark:text-gray-500 font-arabic text-right mt-1" dir="rtl">
+                                {item.qareesrest}
+                            </p>
+                        )}
+                    </div>
 
-                    {/* Qarees rest */}
-                    {item.qareesrest && (
-                        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500 font-arabic" dir="rtl">
-                            {item.qareesrest}
-                        </p>
-                    )}
-
-                    {/* Tags */}
+                    {/* Tags Footer */}
                     {item.tags && (
-                        <div className="flex flex-wrap gap-1 mt-2">
+                        <div className="flex flex-wrap gap-1.5 mt-4 border-t border-gray-50 dark:border-gray-700/30 pt-3">
                             {item.tags.split(',').filter(Boolean).map((t, i) => (
-                                <span key={i} className="px-1.5 py-0.5 text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded border border-emerald-100 dark:border-emerald-800">
+                                <span key={i} className="px-2 py-0.5 text-[10px] bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md border border-emerald-100 dark:border-emerald-800/30 font-medium">
                                     {t.trim()}
                                 </span>
                             ))}
@@ -147,23 +157,21 @@ function ResultCard({ item }: { item: QuranData }) {
                     )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Vertical Actions Tray */}
+                <div className="flex flex-col gap-2 translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
                     <button
                         type="button"
                         onClick={handleCopy}
-                        title="نسخ"
-                        className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-800 text-gray-500 dark:text-gray-400 transition-colors"
+                        className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-blue-600 hover:text-white text-gray-400 transition-all shadow-sm"
                     >
-                        {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                        {copied ? <Check size={16} /> : <Copy size={16} />}
                     </button>
                     <button
                         type="button"
                         onClick={handleShare}
-                        title="مشاركة"
-                        className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-800 text-gray-500 dark:text-gray-400 transition-colors"
+                        className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-blue-600 hover:text-white text-gray-400 transition-all shadow-sm"
                     >
-                        <Share2 size={14} />
+                        <Share2 size={16} />
                     </button>
                 </div>
             </div>

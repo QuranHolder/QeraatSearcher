@@ -22,29 +22,45 @@ function QareeCard({
     const r1Key = `R${n}_1` as keyof QuranData;
     const r2Key = `R${n}_2` as keyof QuranData;
 
-    const isActive = item[qKey] === '1' || item[qKey] === 1;
-    if (!isActive) return null;
+    const qActive = item[qKey] === '1' || item[qKey] === 1;
+    const r1Active = item[r1Key] === '1' || item[r1Key] === 1;
+    const r2Active = item[r2Key] === '1' || item[r2Key] === 1;
 
-    const qareeeName = qareeMap[`Q${n}`] || `Q${n}`;
+    // Show if the qari or either narrator is active
+    if (!qActive && !r1Active && !r2Active) return null;
+
+    const qName = qareeMap[`Q${n}`] || `Q${n}`;
     const r1Name = qareeMap[`R${n}_1`] || null;
     const r2Name = qareeMap[`R${n}_2`] || null;
 
-    // Show raawi only when the two raawi differ (one or both may be present)
-    const r1Active = item[r1Key] === '1' || item[r1Key] === 1;
-    const r2Active = item[r2Key] === '1' || item[r2Key] === 1;
-    const showRaawi = (r1Active || r2Active) && !(r1Active && r2Active);
+    let mainText = qName;
+    let subText = '';
+
+    // Logic: "يتم عرضه فقط إذا اختلف الراويان"
+    // "مثلا إذا كان q6 is null and r6_1 is not null أو and r6_2 is not null يتم عرض العنصر الموافق للراوي"
+    if (!qActive) {
+        if (r1Active && r2Active) {
+            mainText = `${r1Name} / ${r2Name}`;
+        } else if (r1Active) {
+            mainText = r1Name || qName;
+        } else if (r2Active) {
+            mainText = r2Name || qName;
+        }
+    } else {
+        // Qari is active. Show narrators only if they differ (one is active, one is not)
+        if (r1Active !== r2Active) {
+            subText = (r1Active ? r1Name : r2Name) || '';
+        }
+    }
 
     return (
-        <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700">
-            {/* Qaree name */}
-            <span className="font-arabic text-xs font-bold text-blue-700 dark:text-blue-200 text-center leading-tight">
-                {qareeeName}
+        <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
+            <span className="font-arabic text-[11px] font-bold text-blue-800 dark:text-blue-200 text-center leading-tight">
+                {mainText}
             </span>
-            {/* Raawi (only when different) */}
-            {showRaawi && (
-                <span className="font-arabic text-[10px] text-indigo-500 dark:text-indigo-300 text-center leading-tight border-t border-blue-200 dark:border-blue-600 pt-0.5 mt-0.5">
-                    {r1Active && r1Name ? r1Name : ''}
-                    {r2Active && r2Name ? r2Name : ''}
+            {subText && (
+                <span className="font-arabic text-[9px] text-indigo-500 dark:text-indigo-400 text-center leading-tight border-t border-blue-100 dark:border-blue-800/50 pt-0.5 mt-0.5 w-full">
+                    {subText}
                 </span>
             )}
         </div>

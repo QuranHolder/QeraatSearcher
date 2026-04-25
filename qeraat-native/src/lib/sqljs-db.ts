@@ -1,3 +1,4 @@
+import initSqlJs from 'sql.js';
 import type { SqlJsStatic, Database } from 'sql.js';
 import type { BookQuran, QuranData, QuranSora, Qareemaster, Tagsmaster, SearchOptions } from './types';
 
@@ -15,13 +16,13 @@ function getBaseUrl(): string {
     return '';
 }
 
+
 export async function initDatabase(): Promise<Database> {
     if (db) return db;
 
     const baseUrl = getBaseUrl();
 
     if (!SQL) {
-        const initSqlJs = (await import('sql.js')).default;
         SQL = await initSqlJs({
             locateFile: () => `${baseUrl}/sql-wasm.wasm`,
         });

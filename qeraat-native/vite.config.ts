@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   // Required for sql.js WebAssembly
   optimizeDeps: {
-    exclude: ['sql.js'],
+    // We let Vite optimize it now
   },
   // Capacitor serves from root
   base: './',
