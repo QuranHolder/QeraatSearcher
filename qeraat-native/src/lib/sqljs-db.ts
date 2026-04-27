@@ -143,6 +143,41 @@ export function searchRoot(db: Database, query: string, opts: SearchOptions = {}
 }
 
 // ─────────────────────────────────────────────
+// Search by reading
+// ─────────────────────────────────────────────
+export function searchReading(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
+    const limit = opts.limit ?? 200;
+    const { where, params } = buildFilterClauses(opts);
+
+    if (opts.wholeWord) {
+        params['$q'] = query;
+        where.unshift(`reading = $q`);
+    } else {
+        params['$q'] = `%${query}%`;
+        where.unshift(`reading LIKE $q`);
+    }
+
+    params['$limit'] = limit;
+
+    const sql = `
+        SELECT qd.*, qs.sora_name
+        FROM quran_data qd
+        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+        WHERE ${where.join(' AND ')}
+        LIMIT $limit
+    `;
+
+    const stmt = db.prepare(sql);
+    stmt.bind(params);
+    const results: QuranData[] = [];
+    while (stmt.step()) {
+        results.push(stmt.getAsObject() as unknown as QuranData);
+    }
+    stmt.free();
+    return results;
+}
+
+// ─────────────────────────────────────────────
 // Search by tag (visual tag filter — tag name exact match)
 // ─────────────────────────────────────────────
 export function searchTag(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {

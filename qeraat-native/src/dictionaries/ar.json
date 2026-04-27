@@ -14,6 +14,8 @@
     "text": "نص",
     "root": "جذر",
     "tag": "وسم",
+    "reading": "قرأ",
+    "readingHint": "البحث في كيف قرأها القراء",
     "button": "بحث",
     "backToHome": "العودة للرئيسية",
     "resultsFor": "نتائج البحث عن",

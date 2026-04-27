@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
-import { searchText, searchRoot, searchTag, getAllTags, getAllQarees } from '../lib/sqljs-db';
+import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees } from '../lib/sqljs-db';
 import { useLocale } from '../hooks/useLocale';
 import type { QuranData, Tagsmaster, Qareemaster, SearchOptions } from '../lib/types';
 
@@ -233,6 +233,7 @@ export default function SearchPage() {
         }
 
         if (type === 'root') setResults(searchRoot(db, q, opts));
+        else if (type === 'reading') setResults(searchReading(db, q, opts));
         else if (type === 'tag') setResults(searchTag(db, q, opts));
         else setResults(searchText(db, q || '%', opts));
     }, [dbState, q, type, buildOpts, includeTags, excludeTags, includeQarees, excludeHafsa, wholeWord]);
@@ -303,7 +304,7 @@ export default function SearchPage() {
                             type="text"
                             value={query}
                             onChange={e => setQuery(e.target.value)}
-                            placeholder={dict.search.placeholder}
+                            placeholder={searchType === 'reading' ? dict.search.readingHint : dict.search.placeholder}
                             className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-800 text-base"
                         />
                     </div>
@@ -326,7 +327,7 @@ export default function SearchPage() {
 
                 {/* Search type radio */}
                 <div className="flex gap-4 mt-3">
-                    {(['text', 'root', 'tag'] as const).map(t => (
+                    {(['text', 'root', 'tag', 'reading'] as const).map(t => (
                         <label key={t} className="flex items-center gap-1.5 cursor-pointer text-sm">
                             <input type="radio" value={t} checked={searchType === t} onChange={() => setSearchType(t)} className="w-3.5 h-3.5 accent-blue-600" />
                             {dict.search[t]}

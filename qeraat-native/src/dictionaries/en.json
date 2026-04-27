@@ -14,6 +14,8 @@
     "text": "Text",
     "root": "Root",
     "tag": "Tag",
+    "reading": "Reading",
+    "readingHint": "Search for how reciters read it",
     "button": "Search",
     "backToHome": "Back to Home",
     "resultsFor": "Results for",
