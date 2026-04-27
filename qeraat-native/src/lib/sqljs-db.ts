@@ -64,7 +64,7 @@ function buildFilterClauses(opts: SearchOptions): { where: string[]; params: any
 
     // Include qarees (OR logic) — Q1..Q10
     if (opts.includeQarees && opts.includeQarees.length > 0) {
-        const qClauses = opts.includeQarees.map(q => `ifnull(${q},0) = 1`);
+        const qClauses = opts.includeQarees.map(q => `ifnull(${q},'0') = '1'`);
         where.push(`(${qClauses.join(' OR ')})`);
     }
 
@@ -74,6 +74,76 @@ function buildFilterClauses(opts: SearchOptions): { where: string[]; params: any
     }
 
     return { where, params };
+}
+
+/**
+ * Interpolates named params ($name) into an SQL string for human-readable debugging.
+ * Values are quoted as SQLite literals.
+ */
+export function buildDebugSql(sql: string, params: Record<string, any>): string {
+    // Sort by key length desc so $offset doesn't partially match $offsetX etc.
+    const keys = Object.keys(params).sort((a, b) => b.length - a.length);
+    let result = sql;
+    for (const key of keys) {
+        const val = params[key];
+        const literal =
+            val === null || val === undefined
+                ? 'NULL'
+                : typeof val === 'number'
+                ? String(val)
+                : `'${String(val).replace(/'/g, "''")}'`;
+        result = result.split(key).join(literal);
+    }
+    return result.trim();
+}
+
+/**
+ * Returns the debug SQL string (params inlined) for the given search type and options,
+ * without executing anything.
+ */
+export function getSearchSql(
+    searchType: 'text' | 'root' | 'reading' | 'tag',
+    query: string,
+    opts: SearchOptions = {}
+): string {
+    const limit = opts.limit ?? 200;
+    const { where, params } = buildFilterClauses(opts);
+    params['$limit'] = limit;
+    params['$offset'] = opts.offset ?? 0;
+
+    if (searchType === 'root') {
+        params['$root'] = query;
+        where.unshift(`root = $root`);
+    } else if (searchType === 'reading') {
+        if (opts.wholeWord) {
+            params['$q'] = query;
+            where.unshift(`reading = $q`);
+        } else {
+            params['$q'] = `%${query}%`;
+            where.unshift(`reading LIKE $q`);
+        }
+    } else if (searchType === 'tag') {
+        params['$tagExact'] = `%,${query},%`;
+        params['$qLike'] = `%${query}%`;
+        where.unshift(`((',' || ifnull(tags,'') || ',') LIKE $tagExact OR tags LIKE $qLike)`);
+    } else {
+        // text
+        if (opts.wholeWord) {
+            params['$q'] = query;
+            where.unshift(`(sub_subject = $q OR sub_subject1 = $q)`);
+        } else {
+            params['$q'] = `%${query || '%'}%`;
+            where.unshift(`(sub_subject LIKE $q OR sub_subject1 LIKE $q)`);
+        }
+    }
+
+    const sql = `SELECT qd.*, qs.sora_name
+FROM quran_data qd
+LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+WHERE ${where.join('\n  AND ')}
+LIMIT $limit OFFSET $offset`;
+
+    return buildDebugSql(sql, params);
 }
 
 // ─────────────────────────────────────────────

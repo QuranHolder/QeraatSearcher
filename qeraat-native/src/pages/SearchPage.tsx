@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
-import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees } from '../lib/sqljs-db';
+import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees, getSearchSql } from '../lib/sqljs-db';
 import { useLocale } from '../hooks/useLocale';
 import { useSavedFilters } from '../hooks/useSavedFilters';
 import type { QuranData, Tagsmaster, Qareemaster, SearchOptions } from '../lib/types';
@@ -209,6 +209,10 @@ export default function SearchPage() {
     const [wholeWord, setWholeWord] = useState(false);
     const [tagFilterMode, setTagFilterMode] = useState<'include' | 'exclude'>('include');
 
+    // SQL debug panel
+    const [showSqlDebug, setShowSqlDebug] = useState(false);
+    const [sqlCopied, setSqlCopied] = useState(false);
+
     // Saved filters
     const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
     const [filterName, setFilterName] = useState('');
@@ -336,6 +340,26 @@ export default function SearchPage() {
     const hasActiveFilters = includeTags.size > 0 || excludeTags.size > 0 || includeQarees.size > 0 || excludeHafsa || wholeWord;
     const isLoading = dbState.status === 'loading' || dbState.status === 'idle';
     const BackIcon = isRtl ? ArrowRight : ArrowLeft;
+
+    // Compute debug SQL whenever filter/query/type changes
+    const debugSql = (() => {
+        const opts = buildOpts();
+        opts.limit = 200;
+        opts.offset = page * 200;
+        return getSearchSql(
+            (type === 'root' || type === 'reading' || type === 'tag' ? type : 'text') as 'text' | 'root' | 'reading' | 'tag',
+            q || '',
+            opts
+        );
+    })();
+
+    const handleCopySql = async () => {
+        try {
+            await navigator.clipboard.writeText(debugSql);
+            setSqlCopied(true);
+            setTimeout(() => setSqlCopied(false), 2000);
+        } catch { /* ignore */ }
+    };
 
     // Group tags by category
     const tagsByCategory = allTags.reduce<Record<string, Tagsmaster[]>>((acc, tag) => {
@@ -598,6 +622,36 @@ export default function SearchPage() {
                                 )}
                             </div>
                         )}
+
+                        {/* ── SQL Debug Panel ── */}
+                        <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowSqlDebug(v => !v)}
+                                className="flex items-center gap-1.5 text-xs font-mono text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors select-none"
+                            >
+                                <span className={`transition-transform duration-150 ${showSqlDebug ? 'rotate-90' : ''}`}>▶</span>
+                                SQL Debug
+                            </button>
+                            {showSqlDebug && (
+                                <div className="mt-2 relative">
+                                    <pre
+                                        dir="ltr"
+                                        className="text-[11px] leading-relaxed font-mono bg-gray-900 dark:bg-black text-green-400 rounded-xl p-3 overflow-x-auto whitespace-pre-wrap break-all"
+                                    >
+                                        {debugSql}
+                                    </pre>
+                                    <button
+                                        type="button"
+                                        onClick={handleCopySql}
+                                        className="absolute top-2 right-2 p-1.5 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white transition-colors"
+                                        title="Copy SQL"
+                                    >
+                                        {sqlCopied ? <Check size={13} /> : <Copy size={13} />}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 
