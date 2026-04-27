@@ -116,7 +116,7 @@ function ResultCard({ item }: { item: QuranData }) {
                         <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full shadow-sm font-arabic">
                             ({soraAya})
                         </span>
-                        
+
                         {/* Reading ID Badge (Subtle) */}
                         <span className="text-[10px] text-gray-400 font-medium">#{item.id}</span>
                     </div>

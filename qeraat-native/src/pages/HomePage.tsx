@@ -58,7 +58,7 @@ export default function HomePage() {
                         </button>
                     </div>
                     <div className={`flex justify-center gap-6 ${isRtl ? 'flex-row-reverse' : ''}`}>
-                        {['text', 'root', 'tag'].map(t => (
+                        {['text', 'root', 'tag', 'reading'].map(t => (
                             <label key={t} className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="radio"
@@ -68,7 +68,7 @@ export default function HomePage() {
                                     onChange={() => setType(t)}
                                     className="w-4 h-4 text-blue-600"
                                 />
-                                <span>{dict.search[t as 'text' | 'root' | 'tag']}</span>
+                                <span>{dict.search[t as 'text' | 'root' | 'tag' | 'reading']}</span>
                             </label>
                         ))}
                     </div>
