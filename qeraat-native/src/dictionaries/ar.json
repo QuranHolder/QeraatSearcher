@@ -24,7 +24,7 @@
     "sora": "سورة",
     "aya": "آية",
     "rootLabel": "الجذر:",
-    "filters": "الفلاتر",
+    "filters": "التصفية",
     "includeTags": "تضمين وسوم",
     "excludeTags": "استثناء وسوم",
     "filterQarees": "تصفية القراء",
@@ -33,9 +33,9 @@
     "copy": "نسخ النتيجة",
     "share": "مشاركة",
     "copied": "تم النسخ!",
-    "clearFilters": "مسح الفلاتر",
-    "showFilters": "إظهار الفلاتر",
-    "hideFilters": "إخفاء الفلاتر",
+    "clearFilters": "مسح التصفية",
+    "showFilters": "إظهار التصفية",
+    "hideFilters": "إخفاء التصفية",
     "noTag": "بلا وسم"
   },
   "aya": {

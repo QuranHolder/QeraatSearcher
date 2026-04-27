@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale';
 
 export default function HomePage() {
@@ -11,9 +11,7 @@ export default function HomePage() {
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
-        if (query.trim()) {
-            navigate(`/search?q=${encodeURIComponent(query)}&type=${type}`);
-        }
+        navigate(`/search?q=${encodeURIComponent(query)}&type=${type}`);
     };
 
     return (
@@ -47,15 +45,23 @@ export default function HomePage() {
                             onChange={e => setQuery(e.target.value)}
                             placeholder={dict.search.placeholder}
                             className="w-full p-4 text-lg border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-800"
-                            style={{ paddingInlineEnd: '3.5rem' }}
+                            style={{ paddingInlineEnd: '5.5rem' }}
                         />
-                        <button
-                            type="submit"
-                            className="absolute top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-blue-500"
-                            style={{ insetInlineEnd: '0.75rem' }}
-                        >
-                            <Search size={24} />
-                        </button>
+                        <div className="absolute top-1/2 -translate-y-1/2 flex gap-1" style={{ insetInlineEnd: '0.75rem' }}>
+                            <button
+                                type="button"
+                                onClick={() => navigate(`/search?q=${encodeURIComponent(query)}&type=${type}&showFilters=true`)}
+                                className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+                            >
+                                <Filter size={24} />
+                            </button>
+                            <button
+                                type="submit"
+                                className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+                            >
+                                <Search size={24} />
+                            </button>
+                        </div>
                     </div>
                     <div className={`flex justify-center gap-6 ${isRtl ? 'flex-row-reverse' : ''}`}>
                         {['text', 'root', 'tag', 'reading'].map(t => (

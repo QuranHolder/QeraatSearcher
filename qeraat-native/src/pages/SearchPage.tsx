@@ -193,7 +193,8 @@ export default function SearchPage() {
     const [searchType, setSearchType] = useState(type);
 
     // Filters
-    const [showFilters, setShowFilters] = useState(false);
+    const initShowFilters = searchParams.get('showFilters') === 'true';
+    const [showFilters, setShowFilters] = useState(initShowFilters);
     const [allTags, setAllTags] = useState<Tagsmaster[]>([]);
     const [allQarees, setAllQarees] = useState<Qareemaster[]>([]);
     const [includeTags, setIncludeTags] = useState<Set<string>>(new Set());
@@ -240,7 +241,7 @@ export default function SearchPage() {
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
-        if (query.trim()) navigate(`/search?q=${encodeURIComponent(query)}&type=${searchType}`);
+        navigate(`/search?q=${encodeURIComponent(query)}&type=${searchType}`);
     };
 
     const toggleIncludeTag = (tag: string) => {
