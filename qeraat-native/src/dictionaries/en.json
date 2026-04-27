@@ -37,7 +37,14 @@
     "showFilters": "Show Filters",
     "hideFilters": "Hide Filters",
     "noTag": "No tag",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "saveFilter": "Save Filter",
+    "savedFilters": "Saved Filters",
+    "filterNamePlaceholder": "Enter a filter name...",
+    "noSavedFilters": "No saved filters",
+    "deleteFilter": "Delete",
+    "applyFilter": "Apply",
+    "filterSaved": "Saved!"
   },
   "aya": {
     "notFound": "Aya Not Found",

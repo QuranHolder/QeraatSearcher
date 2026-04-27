@@ -37,7 +37,14 @@
     "showFilters": "إظهار التصفية",
     "hideFilters": "إخفاء التصفية",
     "noTag": "بلا وسم",
-    "loadMore": "تحميل المزيد"
+    "loadMore": "تحميل المزيد",
+    "saveFilter": "حفظ التصفية",
+    "savedFilters": "التصفيات المحفوظة",
+    "filterNamePlaceholder": "أدخل اسماً للتصفية...",
+    "noSavedFilters": "لا توجد تصفيات محفوظة",
+    "deleteFilter": "حذف",
+    "applyFilter": "تطبيق",
+    "filterSaved": "تم الحفظ!"
   },
   "aya": {
     "notFound": "الآية غير موجودة",

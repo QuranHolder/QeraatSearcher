@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
 import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees } from '../lib/sqljs-db';
 import { useLocale } from '../hooks/useLocale';
+import { useSavedFilters } from '../hooks/useSavedFilters';
 import type { QuranData, Tagsmaster, Qareemaster, SearchOptions } from '../lib/types';
 
 // ─── Copy/Share helper ────────────────────────────────────────────────────────
@@ -206,6 +207,11 @@ export default function SearchPage() {
     const [wholeWord, setWholeWord] = useState(false);
     const [tagFilterMode, setTagFilterMode] = useState<'include' | 'exclude'>('include');
 
+    // Saved filters
+    const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
+    const [filterName, setFilterName] = useState('');
+    const [filterSavedFlash, setFilterSavedFlash] = useState(false);
+
     useEffect(() => { setQuery(q); setSearchType(type); }, [q, type]);
 
     // Load tags & qarees once DB is ready
@@ -302,6 +308,30 @@ export default function SearchPage() {
         setWholeWord(false);
     };
 
+    const handleSaveFilter = () => {
+        const name = filterName.trim();
+        if (!name) return;
+        saveFilter({
+            name,
+            includeTags: Array.from(includeTags),
+            excludeTags: Array.from(excludeTags),
+            includeQarees: Array.from(includeQarees),
+            excludeHafsa,
+            wholeWord,
+        });
+        setFilterName('');
+        setFilterSavedFlash(true);
+        setTimeout(() => setFilterSavedFlash(false), 2000);
+    };
+
+    const applyFilter = (filter: import('../lib/types').SavedFilter) => {
+        setIncludeTags(new Set(filter.includeTags));
+        setExcludeTags(new Set(filter.excludeTags));
+        setIncludeQarees(new Set(filter.includeQarees));
+        setExcludeHafsa(filter.excludeHafsa);
+        setWholeWord(filter.wholeWord);
+    };
+
     const hasActiveFilters = includeTags.size > 0 || excludeTags.size > 0 || includeQarees.size > 0 || excludeHafsa || wholeWord;
     const isLoading = dbState.status === 'loading' || dbState.status === 'idle';
     const BackIcon = isRtl ? ArrowRight : ArrowLeft;
@@ -375,6 +405,76 @@ export default function SearchPage() {
                                 </button>
                             )}
                         </div>
+
+                        {/* ── Saved Filters ── */}
+                        {savedFilters.length > 0 && (
+                            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-600 p-3 space-y-2">
+                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 uppercase tracking-wide">
+                                    <Bookmark size={12} /> {dict.search.savedFilters}
+                                </p>
+                                <div className="flex flex-col gap-1.5 max-h-40 overflow-y-auto">
+                                    {savedFilters.map(sf => (
+                                        <div key={sf.name}
+                                            className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-700/50 group hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                                            <span className="text-sm font-arabic text-gray-700 dark:text-gray-200 truncate flex-1" title={sf.name}>
+                                                {sf.name}
+                                            </span>
+                                            <div className="flex gap-1 shrink-0">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => applyFilter(sf)}
+                                                    className="px-2 py-1 text-[11px] font-medium rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 hover:bg-blue-600 hover:text-white transition-colors"
+                                                >
+                                                    {dict.search.applyFilter}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => deleteFilter(sf.name)}
+                                                    className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                    title={dict.search.deleteFilter}
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Save current filter ── */}
+                        {hasActiveFilters && (
+                            <div className="flex gap-2 items-center">
+                                <div className="relative flex-1">
+                                    <input
+                                        type="text"
+                                        value={filterName}
+                                        onChange={e => setFilterName(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && handleSaveFilter()}
+                                        placeholder={dict.search.filterNamePlaceholder}
+                                        className="w-full text-sm px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 font-arabic"
+                                        dir="rtl"
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleSaveFilter}
+                                    disabled={!filterName.trim()}
+                                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all
+                                        ${ filterSavedFlash
+                                            ? 'bg-emerald-500 text-white'
+                                            : filterName.trim()
+                                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                : 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                >
+                                    {filterSavedFlash
+                                        ? <><BookmarkCheck size={15} /> {dict.search.filterSaved}</>
+                                        : <><Bookmark size={15} /> {dict.search.saveFilter}</>
+                                    }
+                                </button>
+                            </div>
+                        )}
 
                         {/* Quick options row */}
                         <div className="flex flex-wrap gap-4">

@@ -99,3 +99,13 @@ export interface SearchOptions {
   limit?: number;
   offset?: number;
 }
+
+export interface SavedFilter {
+  name: string;
+  includeTags: string[];
+  excludeTags: string[];
+  includeQarees: string[];
+  excludeHafsa: boolean;
+  wholeWord: boolean;
+  savedAt: number; // timestamp
+}
