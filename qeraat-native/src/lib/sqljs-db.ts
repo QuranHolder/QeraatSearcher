@@ -94,13 +94,14 @@ export function searchText(db: Database, query: string, opts: SearchOptions = {}
     where.unshift(textCondition);
 
     params['$limit'] = limit;
+    params['$offset'] = opts.offset ?? 0;
 
     const sql = `
         SELECT qd.*, qs.sora_name
         FROM quran_data qd
         LEFT JOIN quran_sora qs ON qs.sora = qd.sora
         WHERE ${where.join(' AND ')}
-        LIMIT $limit
+        LIMIT $limit OFFSET $offset
     `;
 
     const stmt = db.prepare(sql);
@@ -122,6 +123,7 @@ export function searchRoot(db: Database, query: string, opts: SearchOptions = {}
 
     params['$root'] = query;
     params['$limit'] = limit;
+    params['$offset'] = opts.offset ?? 0;
     where.unshift(`root = $root`);
 
     const sql = `
@@ -129,7 +131,7 @@ export function searchRoot(db: Database, query: string, opts: SearchOptions = {}
         FROM quran_data qd
         LEFT JOIN quran_sora qs ON qs.sora = qd.sora
         WHERE ${where.join(' AND ')}
-        LIMIT $limit
+        LIMIT $limit OFFSET $offset
     `;
 
     const stmt = db.prepare(sql);
@@ -158,13 +160,14 @@ export function searchReading(db: Database, query: string, opts: SearchOptions =
     }
 
     params['$limit'] = limit;
+    params['$offset'] = opts.offset ?? 0;
 
     const sql = `
         SELECT qd.*, qs.sora_name
         FROM quran_data qd
         LEFT JOIN quran_sora qs ON qs.sora = qd.sora
         WHERE ${where.join(' AND ')}
-        LIMIT $limit
+        LIMIT $limit OFFSET $offset
     `;
 
     const stmt = db.prepare(sql);
@@ -193,13 +196,14 @@ export function searchTag(db: Database, query: string, opts: SearchOptions = {})
     where.shift(); // remove the complex one above
     params['$qLike'] = `%${query}%`;
     where.unshift(`((',' || ifnull(tags,'') || ',') LIKE $tagExact OR tags LIKE $qLike)`);
+    params['$offset'] = opts.offset ?? 0;
 
     const sql = `
         SELECT qd.*, qs.sora_name
         FROM quran_data qd
         LEFT JOIN quran_sora qs ON qs.sora = qd.sora
         WHERE ${where.join(' AND ')}
-        LIMIT $limit
+        LIMIT $limit OFFSET $offset
     `;
 
     const stmt = db.prepare(sql);
@@ -227,13 +231,14 @@ export function searchBySelectedTags(db: Database, tags: string[], opts: SearchO
     });
     where.unshift(`(${tagClauses.join(' OR ')})`);
     params['$limit'] = limit;
+    params['$offset'] = opts.offset ?? 0;
 
     const sql = `
         SELECT qd.*, qs.sora_name
         FROM quran_data qd
         LEFT JOIN quran_sora qs ON qs.sora = qd.sora
         WHERE ${where.join(' AND ')}
-        LIMIT $limit
+        LIMIT $limit OFFSET $offset
     `;
 
     const stmt = db.prepare(sql);

@@ -191,6 +191,8 @@ export default function SearchPage() {
     const [results, setResults] = useState<QuranData[]>([]);
     const [query, setQuery] = useState(q);
     const [searchType, setSearchType] = useState(type);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(false);
 
     // Filters
     const initShowFilters = searchParams.get('showFilters') === 'true';
@@ -223,21 +225,43 @@ export default function SearchPage() {
         excludeHafsa,
     }), [wholeWord, includeTags, excludeTags, includeQarees, excludeHafsa]);
 
-    useEffect(() => {
-        if (dbState.status !== 'ready') { setResults([]); return; }
+    const fetchResults = useCallback((currentPage: number, append: boolean) => {
+        if (dbState.status !== 'ready') return;
         const db = dbState.db;
         const opts = buildOpts();
+        opts.limit = 200;
+        opts.offset = currentPage * 200;
 
         if (!q && includeTags.size === 0 && excludeTags.size === 0 && includeQarees.size === 0 && !excludeHafsa) {
-            setResults([]);
+            if (!append) setResults([]);
+            setHasMore(false);
             return;
         }
 
-        if (type === 'root') setResults(searchRoot(db, q, opts));
-        else if (type === 'reading') setResults(searchReading(db, q, opts));
-        else if (type === 'tag') setResults(searchTag(db, q, opts));
-        else setResults(searchText(db, q || '%', opts));
-    }, [dbState, q, type, buildOpts, includeTags, excludeTags, includeQarees, excludeHafsa, wholeWord]);
+        let newResults: QuranData[] = [];
+        if (type === 'root') newResults = searchRoot(db, q, opts);
+        else if (type === 'reading') newResults = searchReading(db, q, opts);
+        else if (type === 'tag') newResults = searchTag(db, q, opts);
+        else newResults = searchText(db, q || '%', opts);
+
+        if (append) {
+            setResults(prev => [...prev, ...newResults]);
+        } else {
+            setResults(newResults);
+        }
+        setHasMore(newResults.length === 200);
+    }, [dbState, q, type, buildOpts]);
+
+    useEffect(() => {
+        setPage(0);
+        fetchResults(0, false);
+    }, [fetchResults]);
+
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchResults(nextPage, true);
+    };
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
@@ -471,9 +495,22 @@ export default function SearchPage() {
                             <div className="space-y-3">
                                 {results.length === 0 && (q || hasActiveFilters)
                                     ? <p className="text-gray-500 text-center py-8">{dict.search.noResults}</p>
-                                    : results.map(item => (
-                                        <ResultCard key={`${item.sora}-${item.aya}-${item.id}`} item={item} />
-                                    ))
+                                    : <>
+                                        {results.map(item => (
+                                            <ResultCard key={`${item.sora}-${item.aya}-${item.id}`} item={item} />
+                                        ))}
+                                        {hasMore && (
+                                            <div className="flex justify-center pt-4 pb-8">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleLoadMore}
+                                                    className="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-blue-600 dark:text-blue-400 font-medium rounded-xl hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                                                >
+                                                    {dict.search.loadMore}
+                                                </button>
+                                            </div>
+                                        )}
+                                      </>
                                 }
                             </div>
                         </>

@@ -97,4 +97,5 @@ export interface SearchOptions {
   includeQarees?: string[];   // e.g. ['Q1', 'Q3']
   excludeHafsa?: boolean;     // ifnull(r5_2,0)<>1
   limit?: number;
+  offset?: number;
 }

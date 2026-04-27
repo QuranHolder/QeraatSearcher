@@ -36,7 +36,8 @@
     "clearFilters": "مسح التصفية",
     "showFilters": "إظهار التصفية",
     "hideFilters": "إخفاء التصفية",
-    "noTag": "بلا وسم"
+    "noTag": "بلا وسم",
+    "loadMore": "تحميل المزيد"
   },
   "aya": {
     "notFound": "الآية غير موجودة",

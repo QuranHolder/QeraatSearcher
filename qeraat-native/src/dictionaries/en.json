@@ -36,7 +36,8 @@
     "clearFilters": "Clear Filters",
     "showFilters": "Show Filters",
     "hideFilters": "Hide Filters",
-    "noTag": "No tag"
+    "noTag": "No tag",
+    "loadMore": "Load More"
   },
   "aya": {
     "notFound": "Aya Not Found",
