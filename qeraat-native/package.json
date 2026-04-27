@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "android:sync": "npm run build && npx cap sync android",
     "android:build": "npm run android:sync && cd android && gradlew.bat assembleDebug",
-    "android:open": "npx cap open android"
+    "android:open": "npx cap open android",
+    "assets:generate": "npx capacitor-assets generate --android"
   },
   "dependencies": {
     "@capacitor-community/electron": "^5.0.1",
@@ -26,6 +27,7 @@
     "sql.js": "^1.14.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",

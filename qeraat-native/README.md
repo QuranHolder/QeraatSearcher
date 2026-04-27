@@ -54,6 +54,10 @@ The native app is built as a **Single Page Application (SPA)** using Vite and Re
 ### 1. Build the APK (Debug)
 1. Open the project in Android Studio:
    ```bash
+   npx cap sync android
+   cd d:\Qeraat\QeraatSearcher\qeraat-native\android
+.\gradlew assembleDebug
+
    npx cap open android
    ```
 2. Wait for Gradle sync to complete.
