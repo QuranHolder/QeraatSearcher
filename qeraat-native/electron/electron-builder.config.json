@@ -1,6 +1,6 @@
 {
   "appId": "com.mrshm.qeraat",
-  "productName": "Qeraat Searcher",
+  "productName": "باحث القراءات",
   "directories": {
     "buildResources": "resources"
   },
