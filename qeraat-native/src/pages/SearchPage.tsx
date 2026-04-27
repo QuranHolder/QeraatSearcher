@@ -51,14 +51,16 @@ function TagChip({ tag, mode, selected, onClick }: {
 }
 
 // ─── QareeChip ────────────────────────────────────────────────────────────────
-function QareeChip({ qaree, selected, onClick }: {
+function QareeChip({ qaree, selected, onClick, small }: {
     qaree: Qareemaster;
     selected: boolean;
     onClick: () => void;
+    small?: boolean;
 }) {
     return (
         <button type="button" onClick={onClick}
-            className={`cursor-pointer select-none px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border text-center
+            className={`cursor-pointer select-none rounded-lg font-medium transition-all duration-150 border text-center font-arabic
+                ${small ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'}
                 ${selected
                     ? 'bg-blue-600 border-blue-600 text-white ring-1 ring-blue-400'
                     : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-400 bg-white dark:bg-gray-800'
@@ -218,9 +220,8 @@ export default function SearchPage() {
     useEffect(() => {
         if (dbState.status !== 'ready') return;
         setAllTags(getAllTags(dbState.db));
-        // Only Q1–Q10 keys
-        const all = getAllQarees(dbState.db);
-        setAllQarees(all.filter(r => /^Q\d+$/.test(r.qkey)));
+        // Keep all Q and R rows
+        setAllQarees(getAllQarees(dbState.db));
     }, [dbState]);
 
     const buildOpts = useCallback((): SearchOptions => ({
@@ -490,24 +491,51 @@ export default function SearchPage() {
                             </label>
                         </div>
 
-                        {/* Qarees multi-select */}
-                        {allQarees.length > 0 && (
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
-                                    {dict.search.filterQarees}
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {allQarees.map(q => (
-                                        <QareeChip
-                                            key={q.qkey}
-                                            qaree={q}
-                                            selected={includeQarees.has(q.qkey)}
-                                            onClick={() => toggleQaree(q.qkey)}
-                                        />
-                                    ))}
+                        {/* Qarees multi-select – two-level: Q then R */}
+                        {allQarees.length > 0 && (() => {
+                            const qList = allQarees.filter(r => /^Q\d+$/.test(r.qkey));
+                            const rByQ = (qn: number) =>
+                                allQarees.filter(r => /^R\d+_\d+$/.test(r.qkey) && r.qkey.startsWith(`R${qn}_`));
+                            return (
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                                        {dict.search.filterQarees}
+                                    </p>
+                                    <div className="space-y-2">
+                                        {qList.map(q => {
+                                            const qNum = parseInt(q.qkey.slice(1));
+                                            const rwayat = rByQ(qNum);
+                                            return (
+                                                <div key={q.qkey}>
+                                                    {/* Q-level chip */}
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <QareeChip
+                                                            qaree={q}
+                                                            selected={includeQarees.has(q.qkey)}
+                                                            onClick={() => toggleQaree(q.qkey)}
+                                                        />
+                                                    </div>
+                                                    {/* Riwayat sub-chips */}
+                                                    {rwayat.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1.5 mt-1.5 pr-3 border-r-2 border-blue-100 dark:border-blue-900/40 mr-1">
+                                                            {rwayat.map(r => (
+                                                                <QareeChip
+                                                                    key={r.qkey}
+                                                                    qaree={r}
+                                                                    selected={includeQarees.has(r.qkey)}
+                                                                    onClick={() => toggleQaree(r.qkey)}
+                                                                    small
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {/* Tags filter mode toggle */}
                         {allTags.length > 0 && (
