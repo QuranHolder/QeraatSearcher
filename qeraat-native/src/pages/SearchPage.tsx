@@ -491,44 +491,42 @@ export default function SearchPage() {
                             </label>
                         </div>
 
-                        {/* Qarees multi-select – two-level: Q then R */}
+                        {/* Qarees multi-select – compact inline: Q chip + R chips per row */}
                         {allQarees.length > 0 && (() => {
                             const qList = allQarees.filter(r => /^Q\d+$/.test(r.qkey));
                             const rByQ = (qn: number) =>
                                 allQarees.filter(r => /^R\d+_\d+$/.test(r.qkey) && r.qkey.startsWith(`R${qn}_`));
                             return (
                                 <div>
-                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                                         {dict.search.filterQarees}
                                     </p>
-                                    <div className="space-y-2">
-                                        {qList.map(q => {
+                                    <div className="flex flex-wrap gap-x-3 gap-y-1.5 items-center">
+                                        {qList.map((q, idx) => {
                                             const qNum = parseInt(q.qkey.slice(1));
                                             const rwayat = rByQ(qNum);
                                             return (
-                                                <div key={q.qkey}>
-                                                    {/* Q-level chip */}
-                                                    <div className="flex flex-wrap items-center gap-2">
-                                                        <QareeChip
-                                                            qaree={q}
-                                                            selected={includeQarees.has(q.qkey)}
-                                                            onClick={() => toggleQaree(q.qkey)}
-                                                        />
-                                                    </div>
-                                                    {/* Riwayat sub-chips */}
-                                                    {rwayat.length > 0 && (
-                                                        <div className="flex flex-wrap gap-1.5 mt-1.5 pr-3 border-r-2 border-blue-100 dark:border-blue-900/40 mr-1">
-                                                            {rwayat.map(r => (
-                                                                <QareeChip
-                                                                    key={r.qkey}
-                                                                    qaree={r}
-                                                                    selected={includeQarees.has(r.qkey)}
-                                                                    onClick={() => toggleQaree(r.qkey)}
-                                                                    small
-                                                                />
-                                                            ))}
-                                                        </div>
+                                                <div key={q.qkey} className="flex items-center gap-1">
+                                                    {/* separator between groups */}
+                                                    {idx > 0 && (
+                                                        <span className="w-px h-5 bg-gray-200 dark:bg-gray-600 mx-0.5 shrink-0" />
                                                     )}
+                                                    {/* Q chip */}
+                                                    <QareeChip
+                                                        qaree={q}
+                                                        selected={includeQarees.has(q.qkey)}
+                                                        onClick={() => toggleQaree(q.qkey)}
+                                                    />
+                                                    {/* R chips inline */}
+                                                    {rwayat.map(r => (
+                                                        <QareeChip
+                                                            key={r.qkey}
+                                                            qaree={r}
+                                                            selected={includeQarees.has(r.qkey)}
+                                                            onClick={() => toggleQaree(r.qkey)}
+                                                            small
+                                                        />
+                                                    ))}
                                                 </div>
                                             );
                                         })}
