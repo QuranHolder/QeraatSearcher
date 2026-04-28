@@ -74,6 +74,8 @@
     "theme": "Theme",
     "themeAuto": "Auto",
     "themeDay": "Day",
-    "themeNight": "Night"
+    "themeNight": "Night",
+    "resultsPerPage": "Results per page",
+    "resultsPerPageDesc": "Choose how many results to load at once"
   }
 }
