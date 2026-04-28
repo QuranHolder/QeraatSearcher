@@ -395,9 +395,9 @@ export default function SearchPage() {
             <div className="max-w-4xl mx-auto">
                 {/* Back link */}
                 <div className="flex items-center h-11 mb-4 ms-12">
-                    <Link to="/" className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-medium">
-                        <BackIcon size={15} /> {dict.search.backToHome}
-                    </Link>
+                    <button onClick={() => navigate(-1)} className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-medium">
+                        <BackIcon size={15} /> {(dict.common as any).back}
+                    </button>
                 </div>
 
                 {/* Search form */}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Copy, Share2, Check } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
 import { getAya } from '../lib/sqljs-db';
@@ -171,6 +171,7 @@ function ReadingCard({
 // ─── AyaPage ──────────────────────────────────────────────────────────────────
 export default function AyaPage() {
     const { index } = useParams<{ index: string }>();
+    const navigate = useNavigate();
     const ayaIndex = parseInt(index || '1', 10);
     const dbState = useDatabase();
     const { dict, isRtl } = useLocale();
@@ -217,9 +218,9 @@ export default function AyaPage() {
         <main className="min-h-screen p-4 sm:p-8 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto">
                 <div className="flex items-center h-11 mb-4 ms-12">
-                    <Link to="/" className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-medium">
-                        <BackIcon size={15} /> {dict.aya.goHome}
-                    </Link>
+                    <button onClick={() => navigate(-1)} className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-medium">
+                        <BackIcon size={15} /> {(dict.common as any).back}
+                    </button>
                 </div>
 
                 {/* Sora header */}

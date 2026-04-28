@@ -76,6 +76,7 @@
     "themeDay": "Day",
     "themeNight": "Night",
     "resultsPerPage": "Results per page",
-    "resultsPerPageDesc": "Choose how many results to load at once"
+    "resultsPerPageDesc": "Choose how many results to load at once",
+    "back": "Back"
   }
 }

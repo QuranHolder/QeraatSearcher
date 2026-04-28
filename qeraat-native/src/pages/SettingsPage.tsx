@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Settings } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale';
 import { useSettings } from '../hooks/useSettings';
@@ -6,6 +6,7 @@ import { useSettings } from '../hooks/useSettings';
 export default function SettingsPage() {
     const { dict, isRtl, locale, setLocale } = useLocale();
     const { settings, updateSettings } = useSettings();
+    const navigate = useNavigate();
     const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
     return (
@@ -13,9 +14,9 @@ export default function SettingsPage() {
             <div className="max-w-2xl mx-auto">
                 {/* Back link */}
                 <div className="flex items-center h-11 mb-6 ms-12">
-                    <Link to="/" className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-arabic font-medium">
-                        <BackIcon size={15} /> {dict.common.home}
-                    </Link>
+                    <button onClick={() => navigate(-1)} className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-arabic font-medium">
+                        <BackIcon size={15} /> {(dict.common as any).back}
+                    </button>
                 </div>
 
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/60 overflow-hidden">
