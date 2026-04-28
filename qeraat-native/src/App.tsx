@@ -6,6 +6,7 @@ import SearchPage from './pages/SearchPage';
 import AyaPage from './pages/AyaPage';
 import SettingsPage from './pages/SettingsPage';
 import Sidebar from './components/Sidebar';
+import LoadingScreen from './components/LoadingScreen';
 import './index.css';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
     <LocaleProvider>
       <BrowserRouter>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative">
+          <LoadingScreen />
           <Sidebar />
           <Routes>
             <Route path="/" element={<HomePage />} />

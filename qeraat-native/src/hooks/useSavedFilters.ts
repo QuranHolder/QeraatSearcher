@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { SavedFilter } from '../lib/types';
 
 const LS_KEY = 'qeraat_saved_filters';
+const EVENT_KEY = 'qeraat_filters_updated';
 
 function load(): SavedFilter[] {
     try {
@@ -15,11 +16,19 @@ function load(): SavedFilter[] {
 function persist(filters: SavedFilter[]) {
     try {
         localStorage.setItem(LS_KEY, JSON.stringify(filters));
+        window.dispatchEvent(new Event(EVENT_KEY));
     } catch { /* storage full – silently ignore */ }
 }
 
 export function useSavedFilters() {
     const [savedFilters, setSavedFilters] = useState<SavedFilter[]>(load);
+
+    // Keep all instances of the hook in sync automatically
+    useEffect(() => {
+        const sync = () => setSavedFilters(load());
+        window.addEventListener(EVENT_KEY, sync);
+        return () => window.removeEventListener(EVENT_KEY, sync);
+    }, []);
 
     const saveFilter = useCallback((filter: Omit<SavedFilter, 'savedAt'>) => {
         setSavedFilters(prev => {

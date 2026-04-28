@@ -196,6 +196,7 @@ export default function SearchPage() {
     const [searchType, setSearchType] = useState(type);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
+    const [isSearching, setIsSearching] = useState(() => !!searchParams.get('applySaved'));
 
     // Filters
     const initShowFilters = searchParams.get('showFilters') === 'true';
@@ -219,6 +220,17 @@ export default function SearchPage() {
     const [filterSavedFlash, setFilterSavedFlash] = useState(false);
 
     useEffect(() => { setQuery(q); setSearchType(type); }, [q, type]);
+
+    // Apply a saved filter when navigated from the Sidebar
+    useEffect(() => {
+        const applySaved = searchParams.get('applySaved');
+        if (!applySaved) return;
+        const match = savedFilters.find(f => f.name === applySaved);
+        if (match) applyFilter(match);
+        else setIsSearching(false); // if not found, disable spinner
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // run only on mount
+
 
     // Load tags & qarees once DB is ready
     useEffect(() => {
@@ -246,21 +258,27 @@ export default function SearchPage() {
         if (!q && includeTags.size === 0 && excludeTags.size === 0 && includeQarees.size === 0 && !excludeHafsa) {
             if (!append) setResults([]);
             setHasMore(false);
+            setIsSearching(false);
             return;
         }
 
-        let newResults: QuranData[] = [];
-        if (type === 'root') newResults = searchRoot(db, q, opts);
-        else if (type === 'reading') newResults = searchReading(db, q, opts);
-        else if (type === 'tag') newResults = searchTag(db, q, opts);
-        else newResults = searchText(db, q || '%', opts);
+        setIsSearching(true);
+        // Use setTimeout to allow the spinner to render before the synchronous SQL runs
+        setTimeout(() => {
+            let newResults: QuranData[] = [];
+            if (type === 'root') newResults = searchRoot(db, q, opts);
+            else if (type === 'reading') newResults = searchReading(db, q, opts);
+            else if (type === 'tag') newResults = searchTag(db, q, opts);
+            else newResults = searchText(db, q || '%', opts);
 
-        if (append) {
-            setResults(prev => [...prev, ...newResults]);
-        } else {
-            setResults(newResults);
-        }
-        setHasMore(newResults.length === 200);
+            if (append) {
+                setResults(prev => [...prev, ...newResults]);
+            } else {
+                setResults(newResults);
+            }
+            setHasMore(newResults.length === 200);
+            setIsSearching(false);
+        }, 0);
     }, [dbState, q, type, buildOpts]);
 
     useEffect(() => {
@@ -330,6 +348,7 @@ export default function SearchPage() {
     };
 
     const applyFilter = (filter: import('../lib/types').SavedFilter) => {
+        setIsSearching(true);
         setIncludeTags(new Set(filter.includeTags));
         setExcludeTags(new Set(filter.excludeTags));
         setIncludeQarees(new Set(filter.includeQarees));
@@ -659,10 +678,15 @@ export default function SearchPage() {
 
                 {/* Results */}
                 <div className="mt-6">
-                    {isLoading ? (
+                    {isLoading || isSearching ? (
                         <div className="flex flex-col items-center justify-center py-20 gap-4">
                             <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                            <p className="text-gray-500">{isRtl ? 'جاري تحميل قاعدة البيانات...' : 'Loading database...'}</p>
+                            <p className="text-gray-500 font-arabic">
+                                {isLoading
+                                    ? (isRtl ? 'جاري تحميل قاعدة البيانات...' : 'Loading database...')
+                                    : (isRtl ? 'جاري البحث...' : 'Searching…')
+                                }
+                            </p>
                         </div>
                     ) : dbState.status === 'error' ? (
                         <p className="text-red-500">Error: {dbState.error}</p>
