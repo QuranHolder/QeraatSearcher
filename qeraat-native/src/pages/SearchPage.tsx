@@ -373,9 +373,11 @@ export default function SearchPage() {
         <main className="min-h-screen p-4 sm:p-6 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto">
                 {/* Back link */}
-                <Link to="/" className="text-blue-500 hover:underline inline-flex items-center gap-1 mb-4 text-sm">
-                    <BackIcon size={15} /> {dict.search.backToHome}
-                </Link>
+                <div className="flex items-center h-11 mb-4 ms-12">
+                    <Link to="/" className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-medium">
+                        <BackIcon size={15} /> {dict.search.backToHome}
+                    </Link>
+                </div>
 
                 {/* Search form */}
                 <form onSubmit={handleSearch} className="flex gap-2 mt-2">

@@ -10,9 +10,11 @@ export default function SettingsPage() {
         <main className="min-h-screen p-4 sm:p-6 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-2xl mx-auto">
                 {/* Back link */}
-                <Link to="/" className="text-blue-500 hover:underline inline-flex items-center gap-1 mb-6 text-sm font-arabic">
-                    <BackIcon size={15} /> {dict.common.home}
-                </Link>
+                <div className="flex items-center h-11 mb-6 ms-12">
+                    <Link to="/" className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-arabic font-medium">
+                        <BackIcon size={15} /> {dict.common.home}
+                    </Link>
+                </div>
 
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/60 overflow-hidden">
                     <div className="p-6 border-b border-gray-100 dark:border-gray-700/60 flex items-center gap-3">
