@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { Menu, X, Settings, Home } from 'lucide-react';
+import { Menu, X, Settings, Home, Sun, Moon, Monitor } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLocale } from '../hooks/useLocale';
+import { useTheme, type Theme } from '../hooks/useTheme';
 
 export default function Sidebar() {
     const [isOpen, setIsOpen] = useState(false);
     const { dict, isRtl } = useLocale();
+    const { theme, setTheme } = useTheme();
     const location = useLocation();
+
+    const themes: { value: Theme; icon: any; label: string }[] = [
+        { value: 'auto', icon: Monitor, label: dict.common.themeAuto },
+        { value: 'day', icon: Sun, label: dict.common.themeDay },
+        { value: 'night', icon: Moon, label: dict.common.themeNight },
+    ];
 
     return (
         <>
@@ -62,6 +70,33 @@ export default function Sidebar() {
                         <span className="font-arabic">{dict.common.settings}</span>
                     </Link>
                 </nav>
+
+                {/* Theme Selector */}
+                <div className="p-4 border-t border-gray-100 dark:border-gray-800/60 mt-auto">
+                    <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 px-2 font-arabic uppercase tracking-wider">
+                        {dict.common.theme}
+                    </p>
+                    <div className="flex gap-1 bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+                        {themes.map(t => {
+                            const Icon = t.icon;
+                            const isActive = theme === t.value;
+                            return (
+                                <button
+                                    key={t.value}
+                                    onClick={() => setTheme(t.value)}
+                                    className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg transition-all ${
+                                        isActive 
+                                            ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm border border-gray-200/50 dark:border-gray-600/50' 
+                                            : 'text-gray-500 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:text-gray-700 dark:hover:text-gray-300'
+                                    }`}
+                                >
+                                    <Icon size={18} />
+                                    <span className="text-[10px] font-medium font-arabic">{t.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
         </>
     );

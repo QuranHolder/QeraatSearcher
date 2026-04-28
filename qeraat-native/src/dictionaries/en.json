@@ -70,6 +70,10 @@
     "home": "Home",
     "settings": "Settings",
     "menu": "Menu",
-    "close": "Close"
+    "close": "Close",
+    "theme": "Theme",
+    "themeAuto": "Auto",
+    "themeDay": "Day",
+    "themeNight": "Night"
   }
 }
