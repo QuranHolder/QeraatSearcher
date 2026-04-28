@@ -7,7 +7,9 @@
     "rootSearch": "Root Search",
     "rootSearchDesc": "Analyze words based on their linguistic roots.",
     "tags": "Tags",
-    "tagsDesc": "Browse by categories and canonical tags."
+    "tagsDesc": "Browse by categories and canonical tags.",
+    "readingSearch": "Reading Search",
+    "readingSearchDesc": "Search how words are recited across the Ten Readings."
   },
   "search": {
     "placeholder": "Search Quran (text, root, or tag)...",

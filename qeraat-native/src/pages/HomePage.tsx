@@ -71,11 +71,12 @@ export default function HomePage() {
             </form>
 
             {/* Feature Cards */}
-            <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl">
+            <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-4xl">
                 {[
                     { title: dict.home.wordSearch, desc: dict.home.wordSearchDesc },
                     { title: dict.home.rootSearch, desc: dict.home.rootSearchDesc },
                     { title: dict.home.tags, desc: dict.home.tagsDesc },
+                    { title: dict.home.readingSearch, desc: dict.home.readingSearchDesc },
                 ].map((card, i) => (
                     <div key={i} className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
                         <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
