@@ -408,7 +408,7 @@ export default function SearchPage() {
                 </form>
 
                 {/* Search type radio */}
-                <div className="flex gap-4 mt-3">
+                <div className="flex gap-4 mt-3" dir={isRtl ? 'rtl' : 'ltr'}>
                     {(['text', 'root', 'tag', 'reading'] as const).map(t => (
                         <label key={t} className="flex items-center gap-1.5 cursor-pointer text-sm">
                             <input type="radio" value={t} checked={searchType === t} onChange={() => setSearchType(t)} className="w-3.5 h-3.5 accent-blue-600" />

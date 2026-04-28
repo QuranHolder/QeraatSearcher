@@ -26,6 +26,11 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     const dict = getDictionary(locale);
     const isRtl = locale === 'ar';
 
+    // Apply synchronously so the correct dir/lang is set before the first paint.
+    // The useEffect below keeps it in sync on subsequent locale changes.
+    document.documentElement.lang = locale;
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+
     useEffect(() => {
         document.documentElement.lang = locale;
         document.documentElement.dir = isRtl ? 'rtl' : 'ltr';

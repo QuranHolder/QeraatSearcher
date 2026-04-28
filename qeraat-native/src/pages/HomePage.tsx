@@ -26,42 +26,42 @@ export default function HomePage() {
 
             {/* Search Form */}
             <form onSubmit={handleSearch} className="w-full max-w-2xl">
-                <div className="flex flex-col gap-4">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={e => setQuery(e.target.value)}
-                            placeholder={dict.search.placeholder}
-                            className="w-full p-4 text-lg border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-800"
-                            style={{ paddingInlineEnd: '5.5rem' }}
-                        />
-                        <div className="absolute top-1/2 -translate-y-1/2 flex gap-1" style={{ insetInlineEnd: '0.75rem' }}>
-                            <button
-                                type="button"
-                                onClick={() => navigate(`/search?q=${encodeURIComponent(query)}&type=${type}&showFilters=true`)}
-                                className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
-                            >
-                                <Filter size={24} />
-                            </button>
-                            <button
-                                type="submit"
-                                className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
-                            >
-                                <Search size={24} />
-                            </button>
+                <div className="flex flex-col gap-3">
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <input
+                                type="text"
+                                value={query}
+                                onChange={e => setQuery(e.target.value)}
+                                placeholder={dict.search.placeholder}
+                                className="w-full p-3 text-base border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-800"
+                            />
                         </div>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex items-center gap-2 text-sm font-medium transition-colors"
+                        >
+                            <Search size={17} />
+                            {dict.search.button}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => navigate(`/search?q=${encodeURIComponent(query)}&type=${type}&showFilters=true`)}
+                            className="px-3 py-2 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-300 flex items-center gap-1.5 text-sm font-medium transition-all"
+                        >
+                            <Filter size={16} />
+                        </button>
                     </div>
-                    <div className={`flex justify-center gap-6 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                    <div className="flex gap-4" dir={isRtl ? 'rtl' : 'ltr'}>
                         {['text', 'root', 'tag', 'reading'].map(t => (
-                            <label key={t} className="flex items-center gap-2 cursor-pointer">
+                            <label key={t} className="flex items-center gap-1.5 cursor-pointer text-sm">
                                 <input
                                     type="radio"
                                     name="type"
                                     value={t}
                                     checked={type === t}
                                     onChange={() => setType(t)}
-                                    className="w-4 h-4 text-blue-600"
+                                    className="w-3.5 h-3.5 accent-blue-600"
                                 />
                                 <span>{dict.search[t as 'text' | 'root' | 'tag' | 'reading']}</span>
                             </label>
