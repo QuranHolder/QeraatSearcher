@@ -76,6 +76,102 @@ function buildFilterClauses(opts: SearchOptions): { where: string[]; params: any
     return { where, params };
 }
 
+// ─────────────────────────────────────────────
+// Helper: resolve the search-column WHERE clause
+// for each search type, returning the clause and
+// any params it needs.
+// ─────────────────────────────────────────────
+type SearchType = 'text' | 'root' | 'reading' | 'tag';
+
+function buildSearchCondition(
+    searchType: SearchType,
+    query: string,
+    opts: SearchOptions
+): { clause: string; params: Record<string, any> } {
+    const params: Record<string, any> = {};
+    let clause: string;
+
+    switch (searchType) {
+        case 'root':
+            params['$q'] = query;
+            clause = `root = $q`;
+            break;
+
+        case 'reading':
+            if (opts.wholeWord) {
+                params['$q'] = query;
+                clause = `reading = $q`;
+            } else {
+                params['$q'] = `%${query}%`;
+                clause = `reading LIKE $q`;
+            }
+            break;
+
+        case 'tag':
+            params['$tagExact'] = `%,${query},%`;
+            params['$qLike'] = `%${query}%`;
+            clause = `((',' || ifnull(tags,'') || ',') LIKE $tagExact OR tags LIKE $qLike)`;
+            break;
+
+        default: // 'text'
+            if (opts.wholeWord) {
+                params['$q'] = query;
+                clause = `(sub_subject = $q OR sub_subject1 = $q)`;
+            } else {
+                params['$q'] = `%${query || '%'}%`;
+                clause = `(sub_subject LIKE $q OR sub_subject1 LIKE $q)`;
+            }
+    }
+
+    return { clause, params };
+}
+
+// ─────────────────────────────────────────────
+// Core: single SQL template shared by all searches
+// ─────────────────────────────────────────────
+function buildBaseSql(where: string[]): string {
+    return `
+        SELECT qd.*, qs.sora_name
+        FROM quran_data qd
+        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
+        WHERE ${where.join(' AND ')}
+        ORDER BY qd.aya_index ASC, qd.id ASC
+        LIMIT $limit OFFSET $offset
+    `;
+}
+
+// ─────────────────────────────────────────────
+// Core: execute a search query and return rows
+// ─────────────────────────────────────────────
+function executeSearch(
+    db: Database,
+    searchType: SearchType,
+    query: string,
+    opts: SearchOptions = {}
+): QuranData[] {
+    const limit = opts.limit ?? 200;
+    const { where, params: filterParams } = buildFilterClauses(opts);
+    const { clause, params: searchParams } = buildSearchCondition(searchType, query, opts);
+
+    where.unshift(clause);
+
+    const params = {
+        ...searchParams,
+        ...filterParams,
+        $limit: limit,
+        $offset: opts.offset ?? 0,
+    };
+
+    const stmt = db.prepare(buildBaseSql(where));
+    stmt.bind(params);
+    const results: QuranData[] = [];
+    while (stmt.step()) {
+        results.push(stmt.getAsObject() as unknown as QuranData);
+    }
+    stmt.free();
+    return results;
+}
+
 /**
  * Interpolates named params ($name) into an SQL string for human-readable debugging.
  * Values are quoted as SQLite literals.
@@ -102,216 +198,64 @@ export function buildDebugSql(sql: string, params: Record<string, any>): string 
  * without executing anything.
  */
 export function getSearchSql(
-    searchType: 'text' | 'root' | 'reading' | 'tag',
+    searchType: SearchType,
     query: string,
     opts: SearchOptions = {}
 ): string {
     const limit = opts.limit ?? 200;
-    const { where, params } = buildFilterClauses(opts);
-    params['$limit'] = limit;
-    params['$offset'] = opts.offset ?? 0;
+    const { where, params: filterParams } = buildFilterClauses(opts);
+    const { clause, params: searchParams } = buildSearchCondition(searchType, query, opts);
 
-    if (searchType === 'root') {
-        params['$root'] = query;
-        where.unshift(`root = $root`);
-    } else if (searchType === 'reading') {
-        if (opts.wholeWord) {
-            params['$q'] = query;
-            where.unshift(`reading = $q`);
-        } else {
-            params['$q'] = `%${query}%`;
-            where.unshift(`reading LIKE $q`);
-        }
-    } else if (searchType === 'tag') {
-        params['$tagExact'] = `%,${query},%`;
-        params['$qLike'] = `%${query}%`;
-        where.unshift(`((',' || ifnull(tags,'') || ',') LIKE $tagExact OR tags LIKE $qLike)`);
-    } else {
-        // text
-        if (opts.wholeWord) {
-            params['$q'] = query;
-            where.unshift(`(sub_subject = $q OR sub_subject1 = $q)`);
-        } else {
-            params['$q'] = `%${query || '%'}%`;
-            where.unshift(`(sub_subject LIKE $q OR sub_subject1 LIKE $q)`);
-        }
-    }
+    where.unshift(clause);
 
-    const sql = `SELECT qd.*, qs.sora_name
-FROM quran_data qd
-LEFT JOIN quran_sora qs ON qs.sora = qd.sora
-WHERE ${where.join('\n  AND ')}
-LIMIT $limit OFFSET $offset`;
+    const params = {
+        ...searchParams,
+        ...filterParams,
+        $limit: limit,
+        $offset: opts.offset ?? 0,
+    };
 
-    return buildDebugSql(sql, params);
+    return buildDebugSql(buildBaseSql(where), params);
 }
 
 // ─────────────────────────────────────────────
-// Search by text
+// Public search functions — thin wrappers over executeSearch
 // ─────────────────────────────────────────────
 export function searchText(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
-    const limit = opts.limit ?? 200;
-    const { where, params } = buildFilterClauses(opts);
-
-    let textCondition: string;
-    if (opts.wholeWord) {
-        params['$q'] = query;
-        textCondition = `(sub_subject = $q OR sub_subject1 = $q)`;
-    } else {
-        params['$q'] = `%${query}%`;
-        textCondition = `(sub_subject LIKE $q OR sub_subject1 LIKE $q)`;
-    }
-    where.unshift(textCondition);
-
-    params['$limit'] = limit;
-    params['$offset'] = opts.offset ?? 0;
-
-    const sql = `
-        SELECT qd.*, qs.sora_name
-        FROM quran_data qd
-        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
-        WHERE ${where.join(' AND ')}
-        LIMIT $limit OFFSET $offset
-    `;
-
-    const stmt = db.prepare(sql);
-    stmt.bind(params);
-    const results: QuranData[] = [];
-    while (stmt.step()) {
-        results.push(stmt.getAsObject() as unknown as QuranData);
-    }
-    stmt.free();
-    return results;
+    return executeSearch(db, 'text', query, opts);
 }
 
-// ─────────────────────────────────────────────
-// Search by root
-// ─────────────────────────────────────────────
 export function searchRoot(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
-    const limit = opts.limit ?? 200;
-    const { where, params } = buildFilterClauses(opts);
-
-    params['$root'] = query;
-    params['$limit'] = limit;
-    params['$offset'] = opts.offset ?? 0;
-    where.unshift(`root = $root`);
-
-    const sql = `
-        SELECT qd.*, qs.sora_name
-        FROM quran_data qd
-        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
-        WHERE ${where.join(' AND ')}
-        LIMIT $limit OFFSET $offset
-    `;
-
-    const stmt = db.prepare(sql);
-    stmt.bind(params);
-    const results: QuranData[] = [];
-    while (stmt.step()) {
-        results.push(stmt.getAsObject() as unknown as QuranData);
-    }
-    stmt.free();
-    return results;
+    return executeSearch(db, 'root', query, opts);
 }
 
-// ─────────────────────────────────────────────
-// Search by reading
-// ─────────────────────────────────────────────
 export function searchReading(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
-    const limit = opts.limit ?? 200;
-    const { where, params } = buildFilterClauses(opts);
-
-    if (opts.wholeWord) {
-        params['$q'] = query;
-        where.unshift(`reading = $q`);
-    } else {
-        params['$q'] = `%${query}%`;
-        where.unshift(`reading LIKE $q`);
-    }
-
-    params['$limit'] = limit;
-    params['$offset'] = opts.offset ?? 0;
-
-    const sql = `
-        SELECT qd.*, qs.sora_name
-        FROM quran_data qd
-        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
-        WHERE ${where.join(' AND ')}
-        LIMIT $limit OFFSET $offset
-    `;
-
-    const stmt = db.prepare(sql);
-    stmt.bind(params);
-    const results: QuranData[] = [];
-    while (stmt.step()) {
-        results.push(stmt.getAsObject() as unknown as QuranData);
-    }
-    stmt.free();
-    return results;
+    return executeSearch(db, 'reading', query, opts);
 }
 
-// ─────────────────────────────────────────────
-// Search by tag (visual tag filter — tag name exact match)
-// ─────────────────────────────────────────────
 export function searchTag(db: Database, query: string, opts: SearchOptions = {}): QuranData[] {
-    const limit = opts.limit ?? 200;
-    const { where, params } = buildFilterClauses(opts);
-
-    params['$q'] = `%${query}%`;
-    params['$limit'] = limit;
-    where.unshift(`(',' || ifnull(tags,'') || ',') LIKE '%,' || $q || ',%' OR tags LIKE $q`);
-
-    // Simpler approach for tag search
-    params['$tagExact'] = `%,${query},%`;
-    where.shift(); // remove the complex one above
-    params['$qLike'] = `%${query}%`;
-    where.unshift(`((',' || ifnull(tags,'') || ',') LIKE $tagExact OR tags LIKE $qLike)`);
-    params['$offset'] = opts.offset ?? 0;
-
-    const sql = `
-        SELECT qd.*, qs.sora_name
-        FROM quran_data qd
-        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
-        WHERE ${where.join(' AND ')}
-        LIMIT $limit OFFSET $offset
-    `;
-
-    const stmt = db.prepare(sql);
-    stmt.bind(params);
-    const results: QuranData[] = [];
-    while (stmt.step()) {
-        results.push(stmt.getAsObject() as unknown as QuranData);
-    }
-    stmt.free();
-    return results;
+    return executeSearch(db, 'tag', query, opts);
 }
 
 // ─────────────────────────────────────────────
 // Search by selected tags (multi-select visual filter)
+// Uses its own condition builder since it takes string[] not a single query.
 // ─────────────────────────────────────────────
 export function searchBySelectedTags(db: Database, tags: string[], opts: SearchOptions = {}): QuranData[] {
-    const limit = opts.limit ?? 200;
-    const { where, params } = buildFilterClauses({ ...opts, includeTags: undefined });
-
     if (tags.length === 0) return [];
+
+    const { where, params } = buildFilterClauses({ ...opts, includeTags: undefined });
 
     const tagClauses = tags.map((tag, i) => {
         params[`$stag${i}`] = `%,${tag},%`;
         return `(',' || ifnull(tags,'') || ',') LIKE $stag${i}`;
     });
     where.unshift(`(${tagClauses.join(' OR ')})`);
-    params['$limit'] = limit;
+
+    params['$limit'] = opts.limit ?? 200;
     params['$offset'] = opts.offset ?? 0;
 
-    const sql = `
-        SELECT qd.*, qs.sora_name
-        FROM quran_data qd
-        LEFT JOIN quran_sora qs ON qs.sora = qd.sora
-        WHERE ${where.join(' AND ')}
-        LIMIT $limit OFFSET $offset
-    `;
-
-    const stmt = db.prepare(sql);
+    const stmt = db.prepare(buildBaseSql(where));
     stmt.bind(params);
     const results: QuranData[] = [];
     while (stmt.step()) {
