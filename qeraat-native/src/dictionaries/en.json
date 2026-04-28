@@ -77,6 +77,14 @@
     "themeNight": "Night",
     "resultsPerPage": "Results per page",
     "resultsPerPageDesc": "Choose how many results to load at once",
-    "back": "Back"
+    "back": "Back",
+    "backupRestore": "Backup & Restore",
+    "exportData": "Export Data",
+    "exportDataDesc": "Save a copy of your settings and filters.",
+    "importData": "Import Data",
+    "importDataDesc": "Restore settings and filters from a backup file.",
+    "importSuccess": "Data imported successfully!",
+    "importError": "Invalid backup file.",
+    "copiedToClipboard": "Backup data copied to clipboard!"
   }
 }
