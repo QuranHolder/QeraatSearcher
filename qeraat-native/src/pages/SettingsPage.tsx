@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Settings } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale';
+import { useSettings } from '../hooks/useSettings';
 
 export default function SettingsPage() {
     const { dict, isRtl, locale, setLocale } = useLocale();
+    const { settings, updateSettings } = useSettings();
     const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
     return (
@@ -39,6 +41,32 @@ export default function SettingsPage() {
                             >
                                 <option value="ar">{dict.common.arabic}</option>
                                 <option value="en">{dict.common.english}</option>
+                            </select>
+                        </div>
+                        
+                        {/* Divider */}
+                        <hr className="my-6 border-gray-100 dark:border-gray-700/60" />
+
+                        {/* Results Per Page Setting */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 className="font-semibold text-gray-800 dark:text-gray-200 font-arabic">{(dict.common as any).resultsPerPage}</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5 font-arabic">
+                                    {(dict.common as any).resultsPerPageDesc}
+                                </p>
+                            </div>
+                            <select
+                                value={settings.resultsPerPage}
+                                onChange={e => updateSettings({ resultsPerPage: Number(e.target.value) })}
+                                className="w-full sm:w-auto min-w-[140px] border border-gray-200 dark:border-gray-600 rounded-xl p-3.5 text-sm bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm transition-all font-mono cursor-pointer appearance-none"
+                            >
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                                <option value="500">500</option>
                             </select>
                         </div>
                     </div>

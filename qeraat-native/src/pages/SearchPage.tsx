@@ -5,6 +5,7 @@ import { useDatabase } from '../hooks/useDatabase';
 import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees, getSearchSql } from '../lib/sqljs-db';
 import { useLocale } from '../hooks/useLocale';
 import { useSavedFilters } from '../hooks/useSavedFilters';
+import { useSettings } from '../hooks/useSettings';
 import type { QuranData, Tagsmaster, Qareemaster, SearchOptions } from '../lib/types';
 
 // ─── Copy/Share helper ────────────────────────────────────────────────────────
@@ -190,6 +191,7 @@ export default function SearchPage() {
     const type = searchParams.get('type') || 'text';
     const dbState = useDatabase();
     const { dict, isRtl } = useLocale();
+    const { settings } = useSettings();
 
     const [results, setResults] = useState<QuranData[]>([]);
     const [query, setQuery] = useState(q);
@@ -252,8 +254,8 @@ export default function SearchPage() {
         if (dbState.status !== 'ready') return;
         const db = dbState.db;
         const opts = buildOpts();
-        opts.limit = 200;
-        opts.offset = currentPage * 200;
+        opts.limit = settings.resultsPerPage;
+        opts.offset = currentPage * settings.resultsPerPage;
 
         if (!q && includeTags.size === 0 && excludeTags.size === 0 && includeQarees.size === 0 && !excludeHafsa) {
             if (!append) setResults([]);
@@ -276,10 +278,10 @@ export default function SearchPage() {
             } else {
                 setResults(newResults);
             }
-            setHasMore(newResults.length === 200);
+            setHasMore(newResults.length === settings.resultsPerPage);
             setIsSearching(false);
         }, 0);
-    }, [dbState, q, type, buildOpts]);
+    }, [dbState, q, type, buildOpts, settings.resultsPerPage]);
 
     useEffect(() => {
         setPage(0);

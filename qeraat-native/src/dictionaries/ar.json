@@ -74,6 +74,8 @@
     "theme": "المظهر",
     "themeAuto": "تلقائي",
     "themeDay": "نهار",
-    "themeNight": "ليل"
+    "themeNight": "ليل",
+    "resultsPerPage": "عدد النتائج في الصفحة",
+    "resultsPerPageDesc": "اختر عدد النتائج التي تظهر في كل مرة"
   }
 }
