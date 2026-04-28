@@ -214,7 +214,7 @@ export default function AyaPage() {
     const ayaText = aya.text_full || aya.text;
 
     return (
-        <main className="min-h-screen p-4 sm:p-8" dir={isRtl ? 'rtl' : 'ltr'}>
+        <main className="min-h-screen p-4 sm:p-8 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto">
                 <Link to="/" className="text-blue-500 hover:underline mb-6 inline-flex items-center gap-1 text-sm">
                     <BackIcon size={15} /> {dict.aya.goHome}

@@ -65,6 +65,9 @@
     "language": "Language",
     "arabic": "العربية",
     "english": "English",
-    "home": "Home"
+    "home": "Home",
+    "settings": "Settings",
+    "menu": "Menu",
+    "close": "Close"
   }
 }

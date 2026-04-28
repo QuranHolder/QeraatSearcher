@@ -65,6 +65,9 @@
     "language": "اللغة",
     "arabic": "العربية",
     "english": "English",
-    "home": "الرئيسية"
+    "home": "الرئيسية",
+    "settings": "الإعدادات",
+    "menu": "القائمة",
+    "close": "إغلاق"
   }
 }

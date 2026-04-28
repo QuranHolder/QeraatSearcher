@@ -4,7 +4,7 @@ import { Search, Filter } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale';
 
 export default function HomePage() {
-    const { dict, isRtl, locale, setLocale } = useLocale();
+    const { dict, isRtl } = useLocale();
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const [type, setType] = useState('text');
@@ -16,18 +16,7 @@ export default function HomePage() {
 
     return (
         <main className="flex flex-col items-center justify-center min-h-screen p-8">
-            {/* Language Switcher */}
-            <div className="absolute top-4 end-4 flex items-center gap-2">
-                <span className="text-sm text-gray-500">{dict.common.language}:</span>
-                <select
-                    value={locale}
-                    onChange={e => setLocale(e.target.value as 'ar' | 'en')}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-sm bg-white dark:bg-gray-800"
-                >
-                    <option value="ar">{dict.common.arabic}</option>
-                    <option value="en">{dict.common.english}</option>
-                </select>
-            </div>
+
 
             {/* Header */}
             <div className="max-w-5xl w-full text-center mb-12">
