@@ -329,10 +329,10 @@ export function getAya(db: Database, ayaIndex: number): {
 
     // Build qaree name map
     const qareeMap: Record<string, string> = {};
-    const qareeStmt = db.prepare(`SELECT qkey, name FROM qareemaster`);
+    const qareeStmt = db.prepare(`SELECT qkey, sname FROM qareemaster`);
     while (qareeStmt.step()) {
-        const row = qareeStmt.getAsObject() as { qkey: string; name: string };
-        qareeMap[row.qkey] = row.name;
+        const row = qareeStmt.getAsObject() as { qkey: string; sname: string };
+        qareeMap[row.qkey] = row.sname;
     }
     qareeStmt.free();
 

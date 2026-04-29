@@ -58,15 +58,29 @@ function QareeChip({ qaree, selected, onClick, small }: {
     onClick: () => void;
     small?: boolean;
 }) {
+    if (!small) {
+        // ── Main qaree (Q1..Q10) ────────────────────────────────────────────
+        return (
+            <button type="button" onClick={onClick}
+                className={`cursor-pointer select-none rounded-lg font-medium transition-all duration-150 border text-center font-arabic px-3 py-1.5 text-xs shadow-sm
+                    ${selected
+                        ? 'bg-blue-600 border-blue-500 text-white ring-1 ring-blue-400 shadow-blue-200 dark:shadow-blue-900'
+                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500 text-gray-800 dark:text-gray-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold'
+                    }`}>
+                {qaree.sname}
+            </button>
+        );
+    }
+
+    // ── Sub narrator (R*) ───────────────────────────────────────────────────
     return (
         <button type="button" onClick={onClick}
-            className={`cursor-pointer select-none rounded-lg font-medium transition-all duration-150 border text-center font-arabic
-                ${small ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'}
+            className={`cursor-pointer select-none rounded-md font-medium transition-all duration-150 border text-center font-arabic px-2 py-0.5 text-[11px]
                 ${selected
-                    ? 'bg-blue-600 border-blue-600 text-white ring-1 ring-blue-400'
-                    : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-400 bg-white dark:bg-gray-800'
+                    ? 'bg-violet-500 border-violet-500 text-white ring-1 ring-violet-300'
+                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-violet-600 dark:text-violet-300 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20'
                 }`}>
-            {qaree.name}
+            {qaree.sname}
         </button>
     );
 }
@@ -230,7 +244,7 @@ export default function SearchPage() {
         const match = savedFilters.find(f => f.name === applySaved);
         if (match) applyFilter(match);
         else setIsSearching(false); // if not found, disable spinner
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // run only on mount
 
 
@@ -509,7 +523,7 @@ export default function SearchPage() {
                                     onClick={handleSaveFilter}
                                     disabled={!filterName.trim()}
                                     className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all
-                                        ${ filterSavedFlash
+                                        ${filterSavedFlash
                                             ? 'bg-emerald-500 text-white'
                                             : filterName.trim()
                                                 ? 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -718,7 +732,7 @@ export default function SearchPage() {
                                                 </button>
                                             </div>
                                         )}
-                                      </>
+                                    </>
                                 }
                             </div>
                         </>

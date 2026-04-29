@@ -20,6 +20,7 @@ export interface Qareemaster {
   qkey: string;       // PK, e.g., 'Q1', 'R1_1', 'R1_2'
   name: string;
   groups?: string;
+  sname?: string;
 }
 
 export interface Tagsmaster {
@@ -51,7 +52,7 @@ export interface QuranData {
   count_words?: number;
   qarees?: string;
   qareesrest?: string;
-  
+
   // Qira'at boolean flags (NULL or 1)
   Q1?: string | number; Q2?: string | number; Q3?: string | number;
   Q4?: string | number; Q5?: string | number; Q6?: string | number;
@@ -72,11 +73,11 @@ export interface QuranData {
 
   tags?: string;        // Comma separated tags
   shawahid?: string;
-  
+
   page_number1?: number;
   page_number2?: number;
   page_shmrly?: number;
-  
+
   x?: number; y?: number; width?: number;
   x2?: number; y2?: number; width2?: number;
 

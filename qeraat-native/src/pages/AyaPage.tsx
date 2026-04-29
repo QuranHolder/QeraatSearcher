@@ -51,16 +51,28 @@ function QareeCard({
         }
     }
 
+    if (qActive) {
+        // ── Main qaree card ──────────────────────────────────────────────────
+        return (
+            <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-blue-600/90 dark:bg-blue-700/80 border border-blue-500 dark:border-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors shadow-sm">
+                <span className="font-arabic text-[11px] font-extrabold text-white text-center leading-tight">
+                    {mainText}
+                </span>
+                {subText && (
+                    <span className="font-arabic text-[9px] text-blue-100 dark:text-blue-200 text-center leading-tight border-t border-blue-400/60 pt-0.5 mt-0.5 w-full">
+                        {subText}
+                    </span>
+                )}
+            </div>
+        );
+    }
+
+    // ── Sub / narrator-only card ─────────────────────────────────────────────
     return (
-        <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
-            <span className="font-arabic text-[11px] font-bold text-blue-800 dark:text-blue-200 text-center leading-tight">
+        <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-violet-50/60 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700/50 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors">
+            <span className="font-arabic text-[10px] font-medium text-violet-700 dark:text-violet-300 text-center leading-tight">
                 {mainText}
             </span>
-            {subText && (
-                <span className="font-arabic text-[9px] text-indigo-500 dark:text-indigo-400 text-center leading-tight border-t border-blue-100 dark:border-blue-800/50 pt-0.5 mt-0.5 w-full">
-                    {subText}
-                </span>
-            )}
         </div>
     );
 }
