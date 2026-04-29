@@ -1,17 +1,47 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale';
+import { useDatabase } from '../hooks/useDatabase';
+import { getAllSurahs, getAyahsForSora } from '../lib/sqljs-db';
+import type { QuranSora, BookQuran } from '../lib/types';
 
 export default function HomePage() {
     const { dict, isRtl } = useLocale();
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const [type, setType] = useState('text');
+    const dbState = useDatabase();
+
+    const [allSurahs, setAllSurahs] = useState<QuranSora[]>([]);
+    const [selectedSora, setSelectedSora] = useState<number>(0);
+    const [fromAya, setFromAya] = useState<number>(0);
+    const [toAya, setToAya] = useState<number>(0);
+    const [soraAyahs, setSoraAyahs] = useState<BookQuran[]>([]);
+
+    useEffect(() => {
+        if (dbState.status !== 'ready') return;
+        setAllSurahs(getAllSurahs(dbState.db));
+    }, [dbState]);
+
+    useEffect(() => {
+        if (dbState.status !== 'ready') return;
+        if (selectedSora > 0) {
+            setSoraAyahs(getAyahsForSora(dbState.db, selectedSora));
+        } else {
+            setSoraAyahs([]);
+            setFromAya(0);
+            setToAya(0);
+        }
+    }, [selectedSora, dbState]);
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
-        navigate(`/search?q=${encodeURIComponent(query)}&type=${type}`);
+        let url = `/search?q=${encodeURIComponent(query)}&type=${type}`;
+        if (selectedSora > 0) url += `&sora=${selectedSora}`;
+        if (fromAya > 0) url += `&fromAya=${fromAya}`;
+        if (toAya > 0) url += `&toAya=${toAya}`;
+        navigate(url);
     };
 
     return (
@@ -26,6 +56,56 @@ export default function HomePage() {
 
             {/* Search Form */}
             <form onSubmit={handleSearch} className="w-full max-w-2xl">
+                {/* ── Sora and Aya Filter ── */}
+                <div className="flex flex-wrap gap-2 mb-3 items-center" dir={isRtl ? 'rtl' : 'ltr'}>
+                    <select 
+                        value={selectedSora} 
+                        onChange={e => setSelectedSora(Number(e.target.value))}
+                        className="py-2 px-3 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[140px] sm:w-[160px] truncate shadow-sm"
+                        title={isRtl ? 'السورة' : 'Sora'}
+                    >
+                        <option value={0}>{isRtl ? 'جميع السور' : 'All Surahs'}</option>
+                        {allSurahs.map(s => (
+                            <option key={s.sora} value={s.sora}>
+                                {s.sora} - {s.sora_name}
+                            </option>
+                        ))}
+                    </select>
+
+                    {selectedSora > 0 && soraAyahs.length > 0 && (
+                        <>
+                            <select 
+                                value={fromAya} 
+                                onChange={e => setFromAya(Number(e.target.value))}
+                                className="py-2 px-3 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[120px] sm:w-[140px] truncate shadow-sm"
+                                dir="rtl"
+                                title={isRtl ? 'من آية' : 'From Aya'}
+                            >
+                                <option value={0}>{isRtl ? 'من البداية' : 'Start'}</option>
+                                {soraAyahs.map(a => (
+                                    <option key={a.aya} value={a.aya}>
+                                        {a.aya} - {a.text}
+                                    </option>
+                                ))}
+                            </select>
+                            <select 
+                                value={toAya} 
+                                onChange={e => setToAya(Number(e.target.value))}
+                                className="py-2 px-3 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[120px] sm:w-[140px] truncate shadow-sm"
+                                dir="rtl"
+                                title={isRtl ? 'إلى آية' : 'To Aya'}
+                            >
+                                <option value={0}>{isRtl ? 'إلى النهاية' : 'End'}</option>
+                                {soraAyahs.map(a => (
+                                    <option key={a.aya} value={a.aya}>
+                                        {a.aya} - {a.text}
+                                    </option>
+                                ))}
+                            </select>
+                        </>
+                    )}
+                </div>
+
                 <div className="flex flex-col gap-3">
                     <div className="flex gap-2">
                         <div className="relative flex-1">

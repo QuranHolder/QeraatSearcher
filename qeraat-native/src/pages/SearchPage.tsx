@@ -227,9 +227,9 @@ export default function SearchPage() {
     const [tagFilterMode, setTagFilterMode] = useState<'include' | 'exclude'>('include');
 
     const [allSurahs, setAllSurahs] = useState<QuranSora[]>([]);
-    const [selectedSora, setSelectedSora] = useState<number>(0);
-    const [fromAya, setFromAya] = useState<number>(0);
-    const [toAya, setToAya] = useState<number>(0);
+    const [selectedSora, setSelectedSora] = useState<number>(() => Number(searchParams.get('sora')) || 0);
+    const [fromAya, setFromAya] = useState<number>(() => Number(searchParams.get('fromAya')) || 0);
+    const [toAya, setToAya] = useState<number>(() => Number(searchParams.get('toAya')) || 0);
     const [soraAyahs, setSoraAyahs] = useState<BookQuran[]>([]);
 
     // SQL debug panel
@@ -331,7 +331,11 @@ export default function SearchPage() {
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
-        navigate(`/search?q=${encodeURIComponent(query)}&type=${searchType}`);
+        let url = `/search?q=${encodeURIComponent(query)}&type=${searchType}`;
+        if (selectedSora > 0) url += `&sora=${selectedSora}`;
+        if (fromAya > 0) url += `&fromAya=${fromAya}`;
+        if (toAya > 0) url += `&toAya=${toAya}`;
+        navigate(url);
     };
 
     const toggleIncludeTag = (tag: string) => {
