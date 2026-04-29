@@ -95,7 +95,7 @@ function ReadingCard({
     const shareText = [
         subject + (showResultNew ? `: ${item.resultnew}` : ''),
         item.reading || '',
-        item.qareesrest || '',
+        item.qareesrest ? (item.qarees === 'الباقون' ? `الباقون: ${item.qareesrest}` : item.qareesrest) : '',
     ].filter(Boolean).join('\n');
 
     const handleCopy = async () => {
@@ -153,7 +153,7 @@ function ReadingCard({
                     )}
                     {item.qareesrest && (
                         <p className="mt-2 text-sm text-[#800000] dark:text-[#ff9999] font-arabic leading-relaxed">
-                            {item.qareesrest}
+                            {item.qarees === 'الباقون' ? 'الباقون: ' : ''}{item.qareesrest}
                         </p>
                     )}
                 </div>

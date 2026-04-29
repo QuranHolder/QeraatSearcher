@@ -15,7 +15,7 @@ function buildShareText(item: QuranData): string {
     const result = item.resultnew ? `${subject}: ${item.resultnew}` : subject;
     const reading = item.reading ? `\n${item.reading}` : '';
     const qarees = item.qarees ? `\n[${item.qarees}]` : '';
-    const qareesrest = item.qareesrest ? `\n${item.qareesrest}` : '';
+    const qareesrest = item.qareesrest ? (item.qarees === 'الباقون' ? `\nالباقون: ${item.qareesrest}` : `\n${item.qareesrest}`) : '';
     return `${title}\n${result}${reading}${qarees}${qareesrest}`;
 }
 
@@ -160,7 +160,7 @@ function ResultCard({ item }: { item: QuranData }) {
                         {/* Qarees rest */}
                         {item.qareesrest && (
                             <p className="text-sm text-[#800000] dark:text-[#ff9999] font-arabic text-right mt-1" dir="rtl">
-                                {item.qareesrest}
+                                {item.qarees === 'الباقون' ? 'الباقون: ' : ''}{item.qareesrest}
                             </p>
                         )}
                     </div>
