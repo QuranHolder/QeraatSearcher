@@ -30,6 +30,7 @@ export interface Tagsmaster {
   qarees?: string;
   category?: string;
   srt?: number;
+  countr?: number;
 }
 
 export interface ShawahidEntry {

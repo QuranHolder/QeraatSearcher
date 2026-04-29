@@ -269,7 +269,7 @@ export function searchBySelectedTags(db: Database, tags: string[], opts: SearchO
 // Get all tags from tagsmaster
 // ─────────────────────────────────────────────
 export function getAllTags(db: Database): Tagsmaster[] {
-    const stmt = db.prepare(`SELECT * FROM tagsmaster ORDER BY srt ASC, tag ASC`);
+    const stmt = db.prepare(`SELECT * FROM tagsmaster ORDER BY countr ASC, tag ASC`);
     const results: Tagsmaster[] = [];
     while (stmt.step()) {
         results.push(stmt.getAsObject() as unknown as Tagsmaster);

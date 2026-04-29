@@ -396,13 +396,7 @@ export default function SearchPage() {
         } catch { /* ignore */ }
     };
 
-    // Group tags by category
-    const tagsByCategory = allTags.reduce<Record<string, Tagsmaster[]>>((acc, tag) => {
-        const cat = tag.category || 'عام';
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(tag);
-        return acc;
-    }, {});
+
 
     return (
         <main className="min-h-screen p-4 sm:p-6 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -617,27 +611,22 @@ export default function SearchPage() {
                                     </div>
                                 </div>
 
-                                {/* Tags grouped by category */}
-                                <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
-                                    {Object.entries(tagsByCategory).map(([cat, tags]) => (
-                                        <div key={cat}>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1.5 font-arabic">{cat}</p>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {tags.map(tag => (
-                                                    <TagChip
-                                                        key={tag.tag}
-                                                        tag={tag}
-                                                        mode={tagFilterMode}
-                                                        selected={tagFilterMode === 'include' ? includeTags.has(tag.tag) : excludeTags.has(tag.tag)}
-                                                        onClick={() => tagFilterMode === 'include'
-                                                            ? toggleIncludeTag(tag.tag)
-                                                            : toggleExcludeTag(tag.tag)
-                                                        }
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
+                                {/* Tags flat list */}
+                                <div className="max-h-56 overflow-y-auto pr-1">
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {allTags.map(tag => (
+                                            <TagChip
+                                                key={tag.tag}
+                                                tag={tag}
+                                                mode={tagFilterMode}
+                                                selected={tagFilterMode === 'include' ? includeTags.has(tag.tag) : excludeTags.has(tag.tag)}
+                                                onClick={() => tagFilterMode === 'include'
+                                                    ? toggleIncludeTag(tag.tag)
+                                                    : toggleExcludeTag(tag.tag)
+                                                }
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
 
                                 {/* Active filter badges summary */}
