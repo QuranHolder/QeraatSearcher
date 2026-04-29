@@ -138,19 +138,21 @@ function ReadingCard({
                 </div>
 
                 <div className="text-right flex-1" dir="rtl">
-                    <p className="font-arabic font-bold text-base leading-relaxed">
+                    <p className="font-quran font-bold text-xl leading-relaxed">
                         {subject}
                         {showResultNew && (
-                            <span className="text-gray-500 dark:text-gray-400 font-normal">: {item.resultnew}</span>
+                            <span className="text-red-600 dark:text-red-400 font-medium font-quran">: {item.resultnew}</span>
                         )}
                     </p>
                     {item.reading && (
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 font-arabic">
-                            {item.reading}
-                        </p>
+                        <div className="mt-2.5 mb-1.5 bg-blue-50/50 dark:bg-blue-900/20 px-3 py-2.5 rounded-xl border border-blue-100/50 dark:border-blue-800/50">
+                            <p className="text-lg md:text-xl text-blue-800 dark:text-blue-300 font-quran font-bold leading-relaxed">
+                                {item.reading}
+                            </p>
+                        </div>
                     )}
                     {item.qareesrest && (
-                        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500 font-arabic">
+                        <p className="mt-2 text-sm text-[#800000] dark:text-[#ff9999] font-arabic leading-relaxed">
                             {item.qareesrest}
                         </p>
                     )}
@@ -246,7 +248,7 @@ export default function AyaPage() {
 
                 {/* Aya text */}
                 <div className="bg-white dark:bg-gray-800 px-6 py-5 rounded-2xl shadow-sm mb-6 text-center border border-gray-100 dark:border-gray-700">
-                    <p className="text-xl leading-loose font-arabic text-gray-800 dark:text-gray-100" dir="rtl">
+                    <p className="text-2xl md:text-3xl leading-loose font-quran text-gray-800 dark:text-gray-100" dir="rtl">
                         {ayaText}
                     </p>
                 </div>

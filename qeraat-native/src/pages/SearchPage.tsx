@@ -141,23 +141,25 @@ function ResultCard({ item }: { item: QuranData }) {
 
                     {/* Subject */}
                     <div className="flex flex-col gap-1.5">
-                        <p className="font-arabic font-bold text-right text-lg leading-relaxed text-gray-800 dark:text-gray-100" dir="rtl">
+                        <p className="font-quran font-bold text-right text-xl leading-relaxed text-gray-800 dark:text-gray-100" dir="rtl">
                             {subject}
                             {showResultNew && (
-                                <span className="text-blue-600 dark:text-blue-400 font-medium"> : {item.resultnew}</span>
+                                <span className="text-red-600 dark:text-red-400 font-medium font-quran"> : {item.resultnew}</span>
                             )}
                         </p>
 
                         {/* Reading */}
                         {item.reading && (
-                            <p className="text-sm text-gray-600 dark:text-gray-300 font-arabic leading-relaxed text-right" dir="rtl">
-                                {item.reading}
-                            </p>
+                            <div className="mt-2 mb-1 bg-blue-50/50 dark:bg-blue-900/20 px-3 py-2 rounded-xl border border-blue-100/50 dark:border-blue-800/50">
+                                <p className="text-base md:text-lg text-blue-800 dark:text-blue-300 font-quran font-bold leading-relaxed text-right" dir="rtl">
+                                    {item.reading}
+                                </p>
+                            </div>
                         )}
 
                         {/* Qarees rest */}
                         {item.qareesrest && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 font-arabic text-right mt-1" dir="rtl">
+                            <p className="text-sm text-[#800000] dark:text-[#ff9999] font-arabic text-right mt-1" dir="rtl">
                                 {item.qareesrest}
                             </p>
                         )}

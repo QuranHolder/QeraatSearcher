@@ -9,4 +9,7 @@
   .font-arabic {
     font-family: 'Cairo', sans-serif;
   }
+  .font-quran {
+    font-family: 'Amiri Quran', 'Amiri', 'Traditional Arabic', serif;
+  }
 }
