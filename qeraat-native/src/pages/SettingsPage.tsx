@@ -18,7 +18,7 @@ export default function SettingsPage() {
         };
         const jsonStr = JSON.stringify(data, null, 2);
         const fileName = `qeraat-backup-${new Date().toISOString().split('T')[0]}.json`;
-        
+
         try {
             const file = new File([jsonStr], fileName, { type: "application/json" });
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -46,10 +46,22 @@ export default function SettingsPage() {
         }
 
         try {
-            await navigator.clipboard.writeText(jsonStr);
-            alert((dict.common as any).copiedToClipboard);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         } catch (e) {
-            alert("Failed to export.");
+            try {
+                await navigator.clipboard.writeText(jsonStr);
+                alert((dict.common as any).copiedToClipboard);
+            } catch (err) {
+                alert("Failed to export.");
+            }
         }
     };
 
@@ -120,7 +132,7 @@ export default function SettingsPage() {
                                 <option value="en">{dict.common.english}</option>
                             </select>
                         </div>
-                        
+
                         {/* Divider */}
                         <hr className="my-6 border-gray-100 dark:border-gray-700/60" />
 
