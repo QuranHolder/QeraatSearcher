@@ -73,6 +73,22 @@ function buildFilterClauses(opts: SearchOptions): { where: string[]; params: any
         where.push(`ifnull(R5_2,0)<>1`);
     }
 
+    // Sora filter
+    if (opts.sora !== undefined && opts.sora > 0) {
+        params['$sora'] = opts.sora;
+        where.push(`qd.sora = $sora`);
+    }
+
+    // Aya range filter
+    if (opts.fromAya !== undefined && opts.fromAya > 0) {
+        params['$fromAya'] = opts.fromAya;
+        where.push(`qd.aya >= $fromAya`);
+    }
+    if (opts.toAya !== undefined && opts.toAya > 0) {
+        params['$toAya'] = opts.toAya;
+        where.push(`qd.aya <= $toAya`);
+    }
+
     return { where, params };
 }
 
@@ -273,6 +289,33 @@ export function getAllTags(db: Database): Tagsmaster[] {
     const results: Tagsmaster[] = [];
     while (stmt.step()) {
         results.push(stmt.getAsObject() as unknown as Tagsmaster);
+    }
+    stmt.free();
+    return results;
+}
+
+// ─────────────────────────────────────────────
+// Get all surahs from quran_sora
+// ─────────────────────────────────────────────
+export function getAllSurahs(db: Database): QuranSora[] {
+    const stmt = db.prepare(`SELECT * FROM quran_sora ORDER BY sora ASC`);
+    const results: QuranSora[] = [];
+    while (stmt.step()) {
+        results.push(stmt.getAsObject() as unknown as QuranSora);
+    }
+    stmt.free();
+    return results;
+}
+
+// ─────────────────────────────────────────────
+// Get all ayahs for a specific surah
+// ─────────────────────────────────────────────
+export function getAyahsForSora(db: Database, sora: number): BookQuran[] {
+    const stmt = db.prepare(`SELECT * FROM book_quran WHERE sora = $sora ORDER BY aya ASC`);
+    stmt.bind({ $sora: sora });
+    const results: BookQuran[] = [];
+    while (stmt.step()) {
+        results.push(stmt.getAsObject() as unknown as BookQuran);
     }
     stmt.free();
     return results;

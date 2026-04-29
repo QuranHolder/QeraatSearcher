@@ -2,11 +2,11 @@ import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
-import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees, getSearchSql } from '../lib/sqljs-db';
+import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees, getSearchSql, getAllSurahs, getAyahsForSora } from '../lib/sqljs-db';
 import { useLocale } from '../hooks/useLocale';
 import { useSavedFilters } from '../hooks/useSavedFilters';
 import { useSettings } from '../hooks/useSettings';
-import type { QuranData, Tagsmaster, Qareemaster, SearchOptions } from '../lib/types';
+import type { QuranData, Tagsmaster, Qareemaster, SearchOptions, QuranSora, BookQuran } from '../lib/types';
 
 // ─── Copy/Share helper ────────────────────────────────────────────────────────
 function buildShareText(item: QuranData): string {
@@ -226,6 +226,12 @@ export default function SearchPage() {
     const [wholeWord, setWholeWord] = useState(false);
     const [tagFilterMode, setTagFilterMode] = useState<'include' | 'exclude'>('include');
 
+    const [allSurahs, setAllSurahs] = useState<QuranSora[]>([]);
+    const [selectedSora, setSelectedSora] = useState<number>(0);
+    const [fromAya, setFromAya] = useState<number>(0);
+    const [toAya, setToAya] = useState<number>(0);
+    const [soraAyahs, setSoraAyahs] = useState<BookQuran[]>([]);
+
     // SQL debug panel
     const [showSqlDebug, setShowSqlDebug] = useState(false);
     const [sqlCopied, setSqlCopied] = useState(false);
@@ -254,7 +260,19 @@ export default function SearchPage() {
         setAllTags(getAllTags(dbState.db));
         // Keep all Q and R rows
         setAllQarees(getAllQarees(dbState.db));
+        setAllSurahs(getAllSurahs(dbState.db));
     }, [dbState]);
+
+    useEffect(() => {
+        if (dbState.status !== 'ready') return;
+        if (selectedSora > 0) {
+            setSoraAyahs(getAyahsForSora(dbState.db, selectedSora));
+        } else {
+            setSoraAyahs([]);
+            setFromAya(0);
+            setToAya(0);
+        }
+    }, [selectedSora, dbState]);
 
     const buildOpts = useCallback((): SearchOptions => ({
         wholeWord,
@@ -262,7 +280,10 @@ export default function SearchPage() {
         excludeTags: excludeTags.size > 0 ? Array.from(excludeTags) : undefined,
         includeQarees: includeQarees.size > 0 ? Array.from(includeQarees) : undefined,
         excludeHafsa,
-    }), [wholeWord, includeTags, excludeTags, includeQarees, excludeHafsa]);
+        sora: selectedSora > 0 ? selectedSora : undefined,
+        fromAya: fromAya > 0 ? fromAya : undefined,
+        toAya: toAya > 0 ? toAya : undefined,
+    }), [wholeWord, includeTags, excludeTags, includeQarees, excludeHafsa, selectedSora, fromAya, toAya]);
 
     const fetchResults = useCallback((currentPage: number, append: boolean) => {
         if (dbState.status !== 'ready') return;
@@ -271,7 +292,7 @@ export default function SearchPage() {
         opts.limit = settings.resultsPerPage;
         opts.offset = currentPage * settings.resultsPerPage;
 
-        if (!q && includeTags.size === 0 && excludeTags.size === 0 && includeQarees.size === 0 && !excludeHafsa) {
+        if (!q && includeTags.size === 0 && excludeTags.size === 0 && includeQarees.size === 0 && !excludeHafsa && selectedSora === 0) {
             if (!append) setResults([]);
             setHasMore(false);
             setIsSearching(false);
@@ -345,6 +366,9 @@ export default function SearchPage() {
         setIncludeQarees(new Set());
         setExcludeHafsa(false);
         setWholeWord(false);
+        setSelectedSora(0);
+        setFromAya(0);
+        setToAya(0);
     };
 
     const handleSaveFilter = () => {
@@ -357,6 +381,9 @@ export default function SearchPage() {
             includeQarees: Array.from(includeQarees),
             excludeHafsa,
             wholeWord,
+            sora: selectedSora > 0 ? selectedSora : undefined,
+            fromAya: fromAya > 0 ? fromAya : undefined,
+            toAya: toAya > 0 ? toAya : undefined,
         });
         setFilterName('');
         setFilterSavedFlash(true);
@@ -370,9 +397,12 @@ export default function SearchPage() {
         setIncludeQarees(new Set(filter.includeQarees));
         setExcludeHafsa(filter.excludeHafsa);
         setWholeWord(filter.wholeWord);
+        setSelectedSora(filter.sora || 0);
+        setFromAya(filter.fromAya || 0);
+        setToAya(filter.toAya || 0);
     };
 
-    const hasActiveFilters = includeTags.size > 0 || excludeTags.size > 0 || includeQarees.size > 0 || excludeHafsa || wholeWord;
+    const hasActiveFilters = includeTags.size > 0 || excludeTags.size > 0 || includeQarees.size > 0 || excludeHafsa || wholeWord || selectedSora > 0 || fromAya > 0 || toAya > 0;
     const isLoading = dbState.status === 'loading' || dbState.status === 'idle';
     const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
@@ -406,6 +436,56 @@ export default function SearchPage() {
                     <button onClick={() => navigate(-1)} className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-medium">
                         <BackIcon size={15} /> {(dict.common as any).back}
                     </button>
+                </div>
+
+                {/* ── Sora and Aya Filter (Main Screen) ── */}
+                <div className="flex flex-wrap gap-2 mb-2 items-center" dir={isRtl ? 'rtl' : 'ltr'}>
+                    <select 
+                        value={selectedSora} 
+                        onChange={e => setSelectedSora(Number(e.target.value))}
+                        className="py-1.5 px-2 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[120px] sm:w-[140px] truncate"
+                        title={isRtl ? 'السورة' : 'Sora'}
+                    >
+                        <option value={0}>{isRtl ? 'جميع السور' : 'All Surahs'}</option>
+                        {allSurahs.map(s => (
+                            <option key={s.sora} value={s.sora}>
+                                {s.sora} - {s.sora_name}
+                            </option>
+                        ))}
+                    </select>
+
+                    {selectedSora > 0 && soraAyahs.length > 0 && (
+                        <>
+                            <select 
+                                value={fromAya} 
+                                onChange={e => setFromAya(Number(e.target.value))}
+                                className="py-1.5 px-2 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[110px] sm:w-[130px] truncate"
+                                dir="rtl"
+                                title={isRtl ? 'من آية' : 'From Aya'}
+                            >
+                                <option value={0}>{isRtl ? 'من البداية' : 'Start'}</option>
+                                {soraAyahs.map(a => (
+                                    <option key={a.aya} value={a.aya}>
+                                        {a.aya} - {a.text}
+                                    </option>
+                                ))}
+                            </select>
+                            <select 
+                                value={toAya} 
+                                onChange={e => setToAya(Number(e.target.value))}
+                                className="py-1.5 px-2 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[110px] sm:w-[130px] truncate"
+                                dir="rtl"
+                                title={isRtl ? 'إلى آية' : 'To Aya'}
+                            >
+                                <option value={0}>{isRtl ? 'إلى النهاية' : 'End'}</option>
+                                {soraAyahs.map(a => (
+                                    <option key={a.aya} value={a.aya}>
+                                        {a.aya} - {a.text}
+                                    </option>
+                                ))}
+                            </select>
+                        </>
+                    )}
                 </div>
 
                 {/* Search form */}

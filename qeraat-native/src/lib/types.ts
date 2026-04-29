@@ -100,6 +100,9 @@ export interface SearchOptions {
   excludeHafsa?: boolean;     // ifnull(r5_2,0)<>1
   limit?: number;
   offset?: number;
+  sora?: number;
+  fromAya?: number;
+  toAya?: number;
 }
 
 export interface SavedFilter {
@@ -110,4 +113,7 @@ export interface SavedFilter {
   excludeHafsa: boolean;
   wholeWord: boolean;
   savedAt: number; // timestamp
+  sora?: number;
+  fromAya?: number;
+  toAya?: number;
 }
