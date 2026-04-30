@@ -85,6 +85,14 @@
     "importDataDesc": "Restore settings and filters from a backup file.",
     "importSuccess": "Data imported successfully!",
     "importError": "Invalid backup file.",
-    "copiedToClipboard": "Backup data copied to clipboard!"
+    "copiedToClipboard": "Backup data copied to clipboard!",
+    "aboutApp": "About App"
+  },
+  "about": {
+    "title": "About App",
+    "preparedBy": "Data prepared by",
+    "author": "Sheikh Mohamed Shalaby",
+    "copyright": "All copyrights reserved",
+    "center": "Al-Imam Al-Ghazali Center for Studies"
   }
 }

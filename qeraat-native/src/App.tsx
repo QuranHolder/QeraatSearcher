@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import SearchPage from './pages/SearchPage';
 import AyaPage from './pages/AyaPage';
 import SettingsPage from './pages/SettingsPage';
+import AboutPage from './pages/AboutPage';
 import Sidebar from './components/Sidebar';
 import LoadingScreen from './components/LoadingScreen';
 import './index.css';
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/aya/:index" element={<AyaPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Routes>
         </div>
       </BrowserRouter>
