@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X, Settings, Home, Sun, Moon, Monitor, Bookmark, Trash2, ChevronDown, Play } from 'lucide-react';
+import { Menu, X, Settings, Home, Sun, Moon, Monitor, Bookmark, Trash2, ChevronDown, Play, Info } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLocale } from '../hooks/useLocale';
 import { useTheme, type Theme } from '../hooks/useTheme';
@@ -81,6 +81,16 @@ export default function Sidebar() {
                     >
                         <Settings size={20} className={location.pathname === '/settings' ? 'text-blue-500' : 'text-gray-400'} />
                         <span className="font-arabic">{dict.common.settings}</span>
+                    </Link>
+
+                    {/* About */}
+                    <Link
+                        to="/about"
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all ${location.pathname === '/about' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                    >
+                        <Info size={20} className={location.pathname === '/about' ? 'text-blue-500' : 'text-gray-400'} />
+                        <span className="font-arabic">{(dict.common as any).aboutApp || dict.about?.title || 'حول التطبيق'}</span>
                     </Link>
 
                     {/* ── Saved Filters Accordion ── */}
