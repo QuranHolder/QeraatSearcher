@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Search, Filter, X, Copy, Share2, Check, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
+import { Search, Filter, X, Copy, Share2, Check, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
 import { searchText, searchRoot, searchReading, searchTag, getAllTags, getAllQarees, getSearchSql, getAllSurahs, getAyahsForSora } from '../lib/sqljs-db';
 import { useLocale } from '../hooks/useLocale';
@@ -410,7 +410,6 @@ export default function SearchPage() {
 
     const hasActiveFilters = includeTags.size > 0 || excludeTags.size > 0 || includeQarees.size > 0 || excludeHafsa || wholeWord || selectedSora > 0 || fromAya > 0 || toAya > 0;
     const isLoading = dbState.status === 'loading' || dbState.status === 'idle';
-    const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
     // Compute debug SQL whenever filter/query/type changes
     const debugSql = (() => {
@@ -435,14 +434,8 @@ export default function SearchPage() {
 
 
     return (
-        <main className="min-h-screen p-4 sm:p-6 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
+        <main className="min-h-screen p-4 sm:p-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto">
-                {/* Back link */}
-                <div className="flex items-center h-11 mb-4 ms-12">
-                    <button onClick={() => navigate(-1)} className="text-blue-500 hover:underline inline-flex items-center gap-1 text-sm font-medium">
-                        <BackIcon size={15} /> {(dict.common as any).back}
-                    </button>
-                </div>
 
                 {/* ── Sora and Aya Filter (Main Screen) ── */}
                 <div className="flex flex-wrap gap-2 mb-2 items-center" dir={isRtl ? 'rtl' : 'ltr'}>

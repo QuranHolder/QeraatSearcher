@@ -1,32 +1,14 @@
-import { ArrowRight, ArrowLeft, Info, BookOpen, Copyright } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { BookOpen, Copyright } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale';
 
 export default function AboutPage() {
-    const navigate = useNavigate();
-    const { dict, isRtl } = useLocale();
+    const { dict } = useLocale();
 
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12 pt-safe">
-            {/* Header */}
-            <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
-                <div className="max-w-3xl mx-auto px-4 h-16 flex items-center gap-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-2 -ms-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-600 dark:text-gray-300"
-                        aria-label={dict.common.back}
-                    >
-                        {isRtl ? <ArrowRight size={24} /> : <ArrowLeft size={24} />}
-                    </button>
-                    <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400">
-                        <Info size={24} />
-                        <h1 className="text-xl font-bold font-arabic">{dict.about.title}</h1>
-                    </div>
-                </div>
-            </header>
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12">
 
             {/* Content */}
-            <div className="max-w-3xl mx-auto px-4 mt-8">
+            <div className="max-w-3xl mx-auto px-4 mt-4">
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col items-center text-center space-y-8">
                     
                     {/* Logo/Icon Area */}

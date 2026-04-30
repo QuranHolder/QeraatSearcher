@@ -45,12 +45,19 @@ export default function HomePage() {
     };
 
     return (
-        <main className="flex flex-col items-center justify-center min-h-screen p-8">
+        <main className="flex flex-col items-center justify-center min-h-[calc(100vh-env(safe-area-inset-top,0px)-3.5rem)] p-8">
 
 
             {/* Header */}
             <div className="max-w-5xl w-full text-center mb-12">
-                <h1 className="text-4xl font-bold mb-3">{dict.home.title}</h1>
+                <h1 className="text-4xl font-bold mb-3 font-arabic">
+                    <span className="text-blue-600 dark:text-blue-400">
+                        {dict.home.title.split(' ')[0]}
+                    </span>{' '}
+                    <span>
+                        {dict.home.title.split(' ').slice(1).join(' ')}
+                    </span>
+                </h1>
                 <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">{dict.home.subtitle}</p>
             </div>
 

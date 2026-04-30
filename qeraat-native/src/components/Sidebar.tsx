@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { Menu, X, Settings, Home, Sun, Moon, Monitor, Bookmark, Trash2, ChevronDown, Play, Info } from 'lucide-react';
+import { X, Settings, Home, Sun, Moon, Monitor, Bookmark, Trash2, ChevronDown, Play, Info } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLocale } from '../hooks/useLocale';
 import { useTheme, type Theme } from '../hooks/useTheme';
 import { useSavedFilters } from '../hooks/useSavedFilters';
 
-export default function Sidebar() {
-    const [isOpen, setIsOpen] = useState(false);
+interface SidebarProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const [savedOpen, setSavedOpen] = useState(false);
     const { dict, isRtl } = useLocale();
     const { theme, setTheme } = useTheme();
@@ -21,26 +25,17 @@ export default function Sidebar() {
     ];
 
     const handleApplyFilter = (name: string) => {
-        setIsOpen(false);
+        onClose();
         navigate(`/search?applySaved=${encodeURIComponent(name)}`);
     };
 
     return (
         <>
-            {/* Hamburger Button */}
-            <button
-                onClick={() => setIsOpen(true)}
-                className={`fixed top-[calc(env(safe-area-inset-top)+1rem)] ${isRtl ? 'right-4' : 'left-4'} p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 z-40 text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:border-blue-300 transition-all active:scale-95`}
-                aria-label={dict.common.menu}
-            >
-                <Menu size={22} />
-            </button>
-
             {/* Overlay */}
             {isOpen && (
                 <div
                     className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity"
-                    onClick={() => setIsOpen(false)}
+                    onClick={onClose}
                 />
             )}
 
@@ -54,7 +49,7 @@ export default function Sidebar() {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800/60 mt-2">
                     <h2 className="font-bold text-lg font-arabic">{dict.common.menu}</h2>
                     <button
-                        onClick={() => setIsOpen(false)}
+                        onClick={onClose}
                         className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                         aria-label={dict.common.close}
                     >
@@ -66,7 +61,7 @@ export default function Sidebar() {
                     {/* Home */}
                     <Link
                         to="/"
-                        onClick={() => setIsOpen(false)}
+                        onClick={onClose}
                         className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all ${location.pathname === '/' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                     >
                         <Home size={20} className={location.pathname === '/' ? 'text-blue-500' : 'text-gray-400'} />
@@ -76,7 +71,7 @@ export default function Sidebar() {
                     {/* Settings */}
                     <Link
                         to="/settings"
-                        onClick={() => setIsOpen(false)}
+                        onClick={onClose}
                         className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all ${location.pathname === '/settings' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                     >
                         <Settings size={20} className={location.pathname === '/settings' ? 'text-blue-500' : 'text-gray-400'} />
@@ -86,7 +81,7 @@ export default function Sidebar() {
                     {/* About */}
                     <Link
                         to="/about"
-                        onClick={() => setIsOpen(false)}
+                        onClick={onClose}
                         className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all ${location.pathname === '/about' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                     >
                         <Info size={20} className={location.pathname === '/about' ? 'text-blue-500' : 'text-gray-400'} />
