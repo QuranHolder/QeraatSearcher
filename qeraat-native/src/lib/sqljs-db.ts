@@ -52,12 +52,15 @@ export async function initDatabase(): Promise<{ db: Database; dbMore: Database }
     return { db, dbMore };
 }
 
+type SqlParam = string | number | Uint8Array | null;
+type SqlParams = Record<string, SqlParam>;
+
 // ─────────────────────────────────────────────
 // Helper: build WHERE clauses from SearchOptions
 // ─────────────────────────────────────────────
-function buildFilterClauses(opts: SearchOptions): { where: string[]; params: any } {
+function buildFilterClauses(opts: SearchOptions): { where: string[]; params: SqlParams } {
     const where: string[] = [];
-    const params: any = {};
+    const params: SqlParams = {};
 
     // Include tags (OR logic)
     if (opts.includeTags && opts.includeTags.length > 0) {
@@ -117,8 +120,8 @@ function buildSearchCondition(
     searchType: SearchType,
     query: string,
     opts: SearchOptions
-): { clause: string; params: Record<string, any> } {
-    const params: Record<string, any> = {};
+): { clause: string; params: SqlParams } {
+    const params: SqlParams = {};
     let clause: string;
 
     switch (searchType) {
@@ -206,7 +209,7 @@ function executeSearch(
  * Interpolates named params ($name) into an SQL string for human-readable debugging.
  * Values are quoted as SQLite literals.
  */
-export function buildDebugSql(sql: string, params: Record<string, any>): string {
+export function buildDebugSql(sql: string, params: SqlParams): string {
     // Sort by key length desc so $offset doesn't partially match $offsetX etc.
     const keys = Object.keys(params).sort((a, b) => b.length - a.length);
     let result = sql;
