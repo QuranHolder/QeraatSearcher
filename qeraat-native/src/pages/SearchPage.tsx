@@ -165,10 +165,23 @@ function ResultCard({ item }: { item: QuranData }) {
                         )}
                     </div>
 
-                    {/* Tags Footer */}
-                    {item.tags && (
+                    {/* Tags & Page Numbers Footer */}
+                    {(item.tags || item.page_number1 || item.page_number2) && (
                         <div className="flex flex-wrap gap-1.5 mt-4 border-t border-gray-50 dark:border-gray-700/30 pt-3">
-                            {item.tags.split(',').filter(Boolean).map((t, i) => (
+                            {/* Page Number 1 */}
+                            {item.page_number1 && (
+                                <span className="px-2 py-0.5 text-[10px] bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md border border-blue-100 dark:border-blue-800/30 font-medium">
+                                    صفحة المدينة: {item.page_number1}
+                                </span>
+                            )}
+                            {/* Page Number 2 */}
+                            {item.page_number2 && (
+                                <span className="px-2 py-0.5 text-[10px] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-md border border-amber-100 dark:border-amber-800/30 font-medium">
+                                    صفحة الشمرلي: {item.page_number2}
+                                </span>
+                            )}
+                            {/* Tags */}
+                            {item.tags?.split(',').filter(Boolean).map((t, i) => (
                                 <span key={i} className="px-2 py-0.5 text-[10px] bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md border border-emerald-100 dark:border-emerald-800/30 font-medium">
                                     {t.trim()}
                                 </span>

@@ -159,10 +159,23 @@ function ReadingCard({
                 </div>
             </div>
 
-            {/* Tags */}
-            {item.tags && (
-                <div className="flex flex-wrap gap-1 mb-3">
-                    {item.tags.split(',').filter(Boolean).map((t, i) => (
+            {/* Tags & Page Numbers */}
+            {(item.tags || item.page_number1 || item.page_number2) && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                    {/* Page Number 1 */}
+                    {item.page_number1 && (
+                        <span className="px-1.5 py-0.5 text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800">
+                            صفحة المدينة: {item.page_number1}
+                        </span>
+                    )}
+                    {/* Page Number 2 */}
+                    {item.page_number2 && (
+                        <span className="px-1.5 py-0.5 text-[10px] bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded border border-amber-100 dark:border-amber-800">
+                            صفحة الشمرلي: {item.page_number2}
+                        </span>
+                    )}
+                    {/* Tags */}
+                    {item.tags?.split(',').filter(Boolean).map((t, i) => (
                         <span key={i} className="px-1.5 py-0.5 text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded border border-emerald-100 dark:border-emerald-800">
                             {t.trim()}
                         </span>
