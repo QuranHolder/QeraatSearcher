@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, type FormEvent } from 'react';
+import { useEffect, useState, useCallback, useMemo, type FormEvent } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Filter, X, Copy, Share2, Check, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 import { useDatabase } from '../hooks/useDatabase';
@@ -206,6 +206,7 @@ export default function SearchPage() {
     const q = searchParams.get('q') || '';
     const type = searchParams.get('type') || 'text';
     const dbState = useDatabase();
+    const isDebug = searchParams.get('debug') === '1';
     const { dict, isRtl } = useLocale();
     const { settings } = useSettings();
 
@@ -411,8 +412,9 @@ export default function SearchPage() {
     const hasActiveFilters = includeTags.size > 0 || excludeTags.size > 0 || includeQarees.size > 0 || excludeHafsa || wholeWord || selectedSora > 0 || fromAya > 0 || toAya > 0;
     const isLoading = dbState.status === 'loading' || dbState.status === 'idle';
 
-    // Compute debug SQL whenever filter/query/type changes
-    const debugSql = (() => {
+    // Compute debug SQL whenever filter/query/type changes (only in debug mode)
+    const debugSql = useMemo(() => {
+        if (!isDebug) return '';
         const opts = buildOpts();
         opts.limit = 200;
         opts.offset = page * 200;
@@ -421,7 +423,7 @@ export default function SearchPage() {
             q || '',
             opts
         );
-    })();
+    }, [isDebug, buildOpts, page, type, q]);
 
     const handleCopySql = async () => {
         try {
@@ -729,34 +731,36 @@ export default function SearchPage() {
                         )}
 
                         {/* ── SQL Debug Panel ── */}
-                        <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
-                            <button
-                                type="button"
-                                onClick={() => setShowSqlDebug(v => !v)}
-                                className="flex items-center gap-1.5 text-xs font-mono text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors select-none"
-                            >
-                                <span className={`transition-transform duration-150 ${showSqlDebug ? 'rotate-90' : ''}`}>▶</span>
-                                SQL Debug
-                            </button>
-                            {showSqlDebug && (
-                                <div className="mt-2 relative">
-                                    <pre
-                                        dir="ltr"
-                                        className="text-[11px] leading-relaxed font-mono bg-gray-900 dark:bg-black text-green-400 rounded-xl p-3 overflow-x-auto whitespace-pre-wrap break-all"
-                                    >
-                                        {debugSql}
-                                    </pre>
-                                    <button
-                                        type="button"
-                                        onClick={handleCopySql}
-                                        className="absolute top-2 right-2 p-1.5 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white transition-colors"
-                                        title="Copy SQL"
-                                    >
-                                        {sqlCopied ? <Check size={13} /> : <Copy size={13} />}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        {isDebug && (
+                            <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowSqlDebug(v => !v)}
+                                    className="flex items-center gap-1.5 text-xs font-mono text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors select-none"
+                                >
+                                    <span className={`transition-transform duration-150 ${showSqlDebug ? 'rotate-90' : ''}`}>▶</span>
+                                    SQL Debug
+                                </button>
+                                {showSqlDebug && (
+                                    <div className="mt-2 relative">
+                                        <pre
+                                            dir="ltr"
+                                            className="text-[11px] leading-relaxed font-mono bg-gray-900 dark:bg-black text-green-400 rounded-xl p-3 overflow-x-auto whitespace-pre-wrap break-all"
+                                        >
+                                            {debugSql}
+                                        </pre>
+                                        <button
+                                            type="button"
+                                            onClick={handleCopySql}
+                                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white transition-colors"
+                                            title="Copy SQL"
+                                        >
+                                            {sqlCopied ? <Check size={13} /> : <Copy size={13} />}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 
