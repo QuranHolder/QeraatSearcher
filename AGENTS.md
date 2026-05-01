@@ -1,9 +1,9 @@
 # Agent Instructions
 
-Before making repository-level changes, read:
+Before making repository-level changes, read `agents/searcher-context/MANIFEST.md`.
 
-- `agents/searcher-context/MANIFEST.md`
+Use `agents/searcher-context/MANIFEST.md` as the entry point for durable agent-facing repository knowledge, then load only the context files it points to for the current task.
 
-This repository contains the Qeraat Searcher application. The active app is `qeraat-native`.
+When repo knowledge changes, update `agents/searcher-context/MANIFEST.md` or one of the context files it lists in the same change.
 
-Keep durable agent-facing repository knowledge under `agents/searcher-context/`. When that knowledge changes, update the relevant context file in the same change.
+Always update `agents/searcher-context/MANIFEST.md` or the relevant listed context file when you learn something worth preserving across future threads, and whenever the user asks for that context to be updated.

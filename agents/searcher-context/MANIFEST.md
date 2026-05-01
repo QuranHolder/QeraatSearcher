@@ -12,6 +12,7 @@ The sibling `QuranData` repository is referenced where it affects the app, but i
 
 ## Current Modules
 
+- `../../README.md`: human-facing app introduction, prerequisites, and local development quick start.
 - `codebase/STACK.md`: languages, frameworks, dependencies, and runtime stack.
 - `codebase/STRUCTURE.md`: repository layout, entry points, and important folders.
 - `codebase/ARCHITECTURE.md`: runtime shape, data flow, and app/database relationships.
@@ -26,6 +27,17 @@ Start with this file, then load only the module needed for the task. For broad o
 
 Prefer direct source inspection for implementation decisions. Treat these files as a map, not as a substitute for reading the current code.
 
+## Development Quick Start
+
+The active React web app is `qeraat-native`, served by Vite.
+
+- Prerequisites: Node.js 18+ and npm 9+ for web development. Native targets additionally need Android Studio/Android SDK/JDK 17 for Android, Xcode/CocoaPods on macOS for iOS, and the Electron package under `qeraat-native/electron` for Windows desktop packaging.
+- This machine currently has Node/npm available through Visual Studio's bundled Node path, not the default shell PATH: `C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Microsoft\VisualStudio\NodeJs`.
+- Dependencies can be installed from `QeraatSearcher/qeraat-native` with `npm install`; if npm cannot write to the user cache under sandboxing, use a project-local cache such as `npm install --cache .npm-cache`.
+- Run the web app from `QeraatSearcher/qeraat-native` with `npm run dev -- --host 127.0.0.1`; the default local URL is `http://127.0.0.1:5173/`.
+- On 2026-05-01, `npm install --cache .npm-cache` completed and Vite served the app successfully at `http://127.0.0.1:5173/`; an HTTP smoke check returned status 200.
+- The install reported `10 vulnerabilities` (`2 moderate`, `8 high`) in the npm dependency tree. Do not run `npm audit fix` automatically; review dependency impact first.
+
 ## Maintenance
 
 Update this context when durable project knowledge changes, such as:
@@ -35,5 +47,6 @@ Update this context when durable project knowledge changes, such as:
 - new build, test, release, or data-pipeline workflows
 - resolved `[ASK USER]` items
 - newly discovered risks or corrected assumptions
+- any repo knowledge that seems worth preserving across future agent threads, whether discovered during work or explicitly requested by the user
 
 Keep the context concise and evidence-based. Mark unknowns as `[TODO]` and intent-dependent decisions as `[ASK USER]`.
