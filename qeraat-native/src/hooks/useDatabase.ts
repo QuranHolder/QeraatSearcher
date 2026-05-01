@@ -7,21 +7,22 @@ import { initDatabase } from '../lib/sqljs-db';
 type DbState =
     | { status: 'idle' }
     | { status: 'loading' }
-    | { status: 'ready'; db: Database }
+    | { status: 'ready'; db: Database; dbMore: Database }
     | { status: 'error'; error: string };
 
 // Module-level singleton so the DB is only loaded once across components
 let globalDb: Database | null = null;
-let globalPromise: Promise<Database> | null = null;
+let globalDbMore: Database | null = null;
+let globalPromise: Promise<{ db: Database; dbMore: Database }> | null = null;
 
 export function useDatabase(): DbState {
     const [state, setState] = useState<DbState>(
-        globalDb ? { status: 'ready', db: globalDb } : { status: 'idle' }
+        globalDb && globalDbMore ? { status: 'ready', db: globalDb, dbMore: globalDbMore } : { status: 'idle' }
     );
 
     useEffect(() => {
-        if (globalDb) {
-            setState({ status: 'ready', db: globalDb });
+        if (globalDb && globalDbMore) {
+            setState({ status: 'ready', db: globalDb, dbMore: globalDbMore });
             return;
         }
 
@@ -33,9 +34,10 @@ export function useDatabase(): DbState {
 
         const currentPromise = globalPromise;
         currentPromise
-            .then((db) => {
+            .then(({ db, dbMore }) => {
                 globalDb = db;
-                setState({ status: 'ready', db });
+                globalDbMore = dbMore;
+                setState({ status: 'ready', db, dbMore });
             })
             .catch((err) => {
                 globalPromise = null; // allow retry

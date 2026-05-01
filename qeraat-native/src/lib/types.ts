@@ -39,6 +39,16 @@ export interface ShawahidEntry {
   text: string;
 }
 
+export interface BookShawahid {
+  aya_index: number;
+  text: string;
+}
+
+export interface BookTaybashahid {
+  aya_index: number;
+  text: string;
+}
+
 export interface QuranData {
   aya_index: number;
   id: number;

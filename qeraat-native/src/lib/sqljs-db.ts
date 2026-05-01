@@ -4,6 +4,7 @@ import type { BookQuran, QuranData, QuranSora, Qareemaster, Tagsmaster, SearchOp
 
 let SQL: SqlJsStatic | null = null;
 let db: Database | null = null;
+let dbMore: Database | null = null;
 
 /**
  * Resolves the correct base URL for fetching assets,
@@ -17,8 +18,8 @@ function getBaseUrl(): string {
 }
 
 
-export async function initDatabase(): Promise<Database> {
-    if (db) return db;
+export async function initDatabase(): Promise<{ db: Database; dbMore: Database }> {
+    if (db && dbMore) return { db, dbMore };
 
     const baseUrl = getBaseUrl();
 
@@ -28,14 +29,27 @@ export async function initDatabase(): Promise<Database> {
         });
     }
 
-    const response = await fetch(`${baseUrl}/db/qeraat_data_v1.db`);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch database: ${response.statusText}`);
-    }
-    const buffer = await response.arrayBuffer();
-    db = new SQL.Database(new Uint8Array(buffer));
+    const [db1Response, db2Response] = await Promise.all([
+        fetch(`${baseUrl}/db/qeraat_data_v1.db`),
+        fetch(`${baseUrl}/db/qeraat_more_v1.db`)
+    ]);
 
-    return db;
+    if (!db1Response.ok) {
+        throw new Error(`Failed to fetch database 1: ${db1Response.statusText}`);
+    }
+    if (!db2Response.ok) {
+        throw new Error(`Failed to fetch database 2: ${db2Response.statusText}`);
+    }
+    
+    const [buffer1, buffer2] = await Promise.all([
+        db1Response.arrayBuffer(),
+        db2Response.arrayBuffer()
+    ]);
+
+    db = new SQL.Database(new Uint8Array(buffer1));
+    dbMore = new SQL.Database(new Uint8Array(buffer2));
+
+    return { db, dbMore };
 }
 
 // ─────────────────────────────────────────────
@@ -337,11 +351,13 @@ export function getAllQarees(db: Database): Qareemaster[] {
 // ─────────────────────────────────────────────
 // Get aya detail page data
 // ─────────────────────────────────────────────
-export function getAya(db: Database, ayaIndex: number): {
+export function getAya(db: Database, dbMore: Database, ayaIndex: number): {
     aya: BookQuran | null;
     sora: QuranSora | null;
     quranData: QuranData[];
     qareeMap: Record<string, string>;
+    shawahidSoghra: import('./types').BookShawahid | null;
+    shawahidTayba: import('./types').BookTaybashahid | null;
 } {
     // Get aya text
     const ayaStmt = db.prepare(`SELECT * FROM book_quran WHERE aya_index = $idx`);
@@ -349,7 +365,7 @@ export function getAya(db: Database, ayaIndex: number): {
     const aya = ayaStmt.step() ? (ayaStmt.getAsObject() as unknown as BookQuran) : null;
     ayaStmt.free();
 
-    if (!aya) return { aya: null, sora: null, quranData: [], qareeMap: {} };
+    if (!aya) return { aya: null, sora: null, quranData: [], qareeMap: {}, shawahidSoghra: null, shawahidTayba: null };
 
     // Get sora info
     const soraStmt = db.prepare(`SELECT * FROM quran_sora WHERE sora = $sora`);
@@ -379,5 +395,27 @@ export function getAya(db: Database, ayaIndex: number): {
     }
     qareeStmt.free();
 
-    return { aya, sora, quranData, qareeMap };
+    // Get shawahid from dbMore
+    let shawahidSoghra = null;
+    let shawahidTayba = null;
+    
+    try {
+        const soghraStmt = dbMore.prepare(`SELECT * FROM book_shawahid WHERE aya_index = $idx`);
+        soghraStmt.bind({ $idx: ayaIndex });
+        shawahidSoghra = soghraStmt.step() ? (soghraStmt.getAsObject() as unknown as import('./types').BookShawahid) : null;
+        soghraStmt.free();
+    } catch (e) {
+        console.warn("Could not query book_shawahid", e);
+    }
+    
+    try {
+        const taybaStmt = dbMore.prepare(`SELECT * FROM book_taybashahid WHERE aya_index = $idx`);
+        taybaStmt.bind({ $idx: ayaIndex });
+        shawahidTayba = taybaStmt.step() ? (taybaStmt.getAsObject() as unknown as import('./types').BookTaybashahid) : null;
+        taybaStmt.free();
+    } catch (e) {
+        console.warn("Could not query book_taybashahid", e);
+    }
+
+    return { aya, sora, quranData, qareeMap, shawahidSoghra, shawahidTayba };
 }
