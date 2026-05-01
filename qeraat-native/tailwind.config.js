@@ -7,6 +7,7 @@ export default {
       fontFamily: {
         sans: ['Cairo', 'sans-serif'],
         arabic: ['Cairo', 'sans-serif'],
+        nask: ['Amiri', 'serif'],
       },
     },
   },

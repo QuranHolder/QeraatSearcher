@@ -171,13 +171,13 @@ function ResultCard({ item }: { item: QuranData }) {
                             {/* Page Number 1 */}
                             {item.page_number1 && (
                                 <span className="px-2 py-0.5 text-[10px] bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md border border-blue-100 dark:border-blue-800/30 font-medium">
-                                    صفحة المدينة: {item.page_number1}
+                                    مدينة: {item.page_number1}
                                 </span>
                             )}
                             {/* Page Number 2 */}
                             {item.page_number2 && (
                                 <span className="px-2 py-0.5 text-[10px] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-md border border-amber-100 dark:border-amber-800/30 font-medium">
-                                    صفحة الشمرلي: {item.page_number2}
+                                    شمرلي: {item.page_number2}
                                 </span>
                             )}
                             {/* Tags */}
@@ -454,8 +454,8 @@ export default function SearchPage() {
 
                 {/* ── Sora and Aya Filter (Main Screen) ── */}
                 <div className="flex flex-wrap gap-2 mb-2 items-center" dir={isRtl ? 'rtl' : 'ltr'}>
-                    <select 
-                        value={selectedSora} 
+                    <select
+                        value={selectedSora}
                         onChange={e => setSelectedSora(Number(e.target.value))}
                         className="py-1.5 px-2 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[120px] sm:w-[140px] truncate"
                         title={isRtl ? 'السورة' : 'Sora'}
@@ -470,8 +470,8 @@ export default function SearchPage() {
 
                     {selectedSora > 0 && soraAyahs.length > 0 && (
                         <>
-                            <select 
-                                value={fromAya} 
+                            <select
+                                value={fromAya}
                                 onChange={e => setFromAya(Number(e.target.value))}
                                 className="py-1.5 px-2 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[110px] sm:w-[130px] truncate"
                                 dir="rtl"
@@ -484,8 +484,8 @@ export default function SearchPage() {
                                     </option>
                                 ))}
                             </select>
-                            <select 
-                                value={toAya} 
+                            <select
+                                value={toAya}
                                 onChange={e => setToAya(Number(e.target.value))}
                                 className="py-1.5 px-2 border rounded-xl bg-white dark:bg-gray-800 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[110px] sm:w-[130px] truncate"
                                 dir="rtl"

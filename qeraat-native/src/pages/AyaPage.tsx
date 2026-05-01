@@ -287,7 +287,7 @@ export default function AyaPage() {
                                     <div className="p-4 rounded-xl bg-blue-50/80 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 shadow-sm">
                                         <h3 className="font-bold text-sm mb-2 opacity-80 border-b border-blue-200/50 dark:border-blue-800/50 pb-1 w-max">شواهد العشر الصغرى</h3>
                                         <div 
-                                            className="font-arabic text-lg leading-relaxed whitespace-pre-wrap"
+                                            className="font-nask text-base leading-relaxed whitespace-pre-wrap"
                                             dangerouslySetInnerHTML={{ __html: data.shawahidSoghra.text }}
                                         />
                                     </div>
@@ -296,7 +296,7 @@ export default function AyaPage() {
                                     <div className="p-4 rounded-xl bg-[#800000]/5 dark:bg-[#800000]/30 border border-[#800000]/20 dark:border-[#800000]/50 text-[#800000] dark:text-[#ff9999] shadow-sm">
                                         <h3 className="font-bold text-sm mb-2 opacity-80 border-b border-[#800000]/20 dark:border-[#800000]/50 pb-1 w-max">شواهد الطيبة</h3>
                                         <div 
-                                            className="font-arabic text-lg leading-relaxed whitespace-pre-wrap"
+                                            className="font-nask text-base leading-relaxed whitespace-pre-wrap"
                                             dangerouslySetInnerHTML={{ __html: data.shawahidTayba.text }}
                                         />
                                     </div>
