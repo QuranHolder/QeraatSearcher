@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Bookmark, Trash2, X } from 'lucide-react';
 import type { Qareemaster, QuranSora, SavedFilter, Tagsmaster } from '../lib/types';
-import { FARSH_TAG, hasActiveSearchFilters, savedFilterToValues, type SearchFilterValues } from '../lib/searchFilters';
+import { FARSH_TAG, savedFilterToValues, type SearchFilterValues } from '../lib/searchFilters';
 
 type TagFilterMode = 'include' | 'exclude';
 type SearchDict = { search: Record<string, string> };
@@ -115,7 +115,7 @@ export function ActiveFilterChips({ filters, onChange, allTags, allQarees, allSu
                 </span>
             ))}
             {showClear && (
-                <button type="button" onClick={clearFilters} className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50">
+                <button type="button" onClick={clearFilters} className="ms-auto inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600">
                     <X size={12} /> {dict.search.clearFilters}
                 </button>
             )}
@@ -125,7 +125,6 @@ export function ActiveFilterChips({ filters, onChange, allTags, allQarees, allSu
 
 export default function SearchFilters({ filters, onChange, allTags, allQarees, allSurahs, savedFilters, deleteFilter, dict, isRtl, showSavedFilters = true }: SearchFiltersProps) {
     const [tagFilterMode, setTagFilterMode] = useState<TagFilterMode>('include');
-    const hasActiveFilters = hasActiveSearchFilters(filters);
 
     const set = (patch: Partial<SearchFilterValues>) => onChange({ ...filters, ...patch });
     const toggleIncludeTag = (tag: string) => {
@@ -137,7 +136,6 @@ export default function SearchFilters({ filters, onChange, allTags, allQarees, a
         onChange({ ...filters, excludeTags, includeTags: without(filters.includeTags, tag) });
     };
     const toggleQaree = (qkey: string) => set({ includeQarees: filters.includeQarees.includes(qkey) ? without(filters.includeQarees, qkey) : unique([...filters.includeQarees, qkey]) });
-    const clearFilters = () => onChange({ includeTags: [], excludeTags: [], includeQarees: [], excludeHafsa: false, wholeWord: false, sora: 0, allQareesSelected: true });
 
     return (
         <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-5" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -170,11 +168,6 @@ export default function SearchFilters({ filters, onChange, allTags, allQarees, a
                     <input type="checkbox" checked={filters.allQareesSelected} onChange={e => set({ allQareesSelected: e.target.checked, includeQarees: e.target.checked ? [] : filters.includeQarees })} className="w-4 h-4 rounded accent-blue-600" />
                     <span>{dict.search.allQarees}</span>
                 </label>
-                {hasActiveFilters && (
-                    <button type="button" onClick={clearFilters} className="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 ms-auto">
-                        <X size={13} /> {dict.search.clearFilters}
-                    </button>
-                )}
             </div>
 
             {showSavedFilters && savedFilters.length > 0 && (
