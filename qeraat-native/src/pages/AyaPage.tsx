@@ -242,27 +242,23 @@ export default function AyaPage() {
     const ayaText = aya.text_full || aya.text;
 
     return (
-        <main className="min-h-screen p-4 sm:p-8 pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
+        <main className="min-h-screen p-2 sm:p-4 pt-1 pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto">
 
-                {/* Sora header */}
-                <div className="text-center my-6">
-                    <h1 className="text-2xl font-bold font-arabic">
-                        {sora?.sora_name && (
-                            <span className="text-blue-600 dark:text-blue-400">({sora.sora_name}:{aya.aya})</span>
-                        )}
-                    </h1>
-                </div>
-
                 {/* Aya text */}
-                <div className="bg-white dark:bg-gray-800 px-6 py-5 rounded-2xl shadow-sm mb-6 text-center border border-gray-100 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-2xl shadow-sm mb-3 text-center border border-gray-100 dark:border-gray-700 mt-1">
                     <p className="text-2xl md:text-3xl leading-loose font-quran text-gray-800 dark:text-gray-100" dir="rtl">
                         {ayaText}
+                        {sora?.sora_name && (
+                            <span className="text-blue-600 dark:text-blue-400 text-base md:text-lg mr-3 whitespace-nowrap font-arabic">
+                                ({sora.sora_name}:{aya.aya})
+                            </span>
+                        )}
                     </p>
                 </div>
 
                 {/* Prev / Next */}
-                <div className="flex justify-between mb-8 gap-3">
+                <div className="flex justify-between mb-4 gap-3">
                     <Link to={ayaIndex > 1 ? `/aya/${ayaIndex - 1}` : '#'}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${ayaIndex > 1 ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700'}`}>
                         <PrevIcon size={16} /> {dict.aya.previous}
@@ -276,13 +272,10 @@ export default function AyaPage() {
                 {/* Readings */}
                 {quranData.length > 0 && (
                     <div className="space-y-4">
-                        <h2 className="text-xl font-bold border-b border-gray-200 dark:border-gray-700 pb-2">
-                            {dict.aya.readings}
-                        </h2>
 
                         {/* Shawahid Section */}
                         {((data.shawahidSoghra && data.shawahidSoghra.text) || (data.shawahidTayba && data.shawahidTayba.text)) && (
-                            <div className="flex flex-col gap-3 mb-6 mt-4">
+                            <div className="flex flex-col gap-3 mb-4 mt-2">
                                 {data.shawahidSoghra && data.shawahidSoghra.text && (
                                     <div className="p-4 rounded-xl bg-blue-50/80 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 shadow-sm">
                                         <h3 className="font-bold text-sm mb-2 opacity-80 border-b border-blue-200/50 dark:border-blue-800/50 pb-1 w-max">شواهد العشر الصغرى</h3>

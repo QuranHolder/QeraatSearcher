@@ -48,17 +48,7 @@ export default function HomePage() {
         <main className="flex flex-col items-center justify-start min-h-[calc(100vh-env(safe-area-inset-top,0px)-3.5rem)] p-8">
 
 
-            {/* Header */}
-            <div className="max-w-5xl w-full text-center mb-6">
-                <h1 className="text-4xl font-bold font-arabic">
-                    <span className="text-blue-600 dark:text-blue-400">
-                        {dict.home.title.split(' ')[0]}
-                    </span>{' '}
-                    <span>
-                        {dict.home.title.split(' ').slice(1).join(' ')}
-                    </span>
-                </h1>
-            </div>
+
 
             {/* Search Form */}
             <form onSubmit={handleSearch} className="w-full max-w-2xl">

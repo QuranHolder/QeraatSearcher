@@ -7,7 +7,6 @@ interface TopBarProps {
 }
 
 const pageTitles: Record<string, { ar: string; en: string }> = {
-    '/': { ar: 'باحث القراءات', en: 'Qeraat Searcher' },
     '/search': { ar: 'نتائج البحث', en: 'Search' },
     '/settings': { ar: 'الإعدادات', en: 'Settings' },
     '/about': { ar: 'حول التطبيق', en: 'About' },
@@ -16,7 +15,7 @@ const pageTitles: Record<string, { ar: string; en: string }> = {
 export default function TopBar({ onMenuClick }: TopBarProps) {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isRtl } = useLocale();
+    const { isRtl, dict } = useLocale();
 
     const isHome = location.pathname === '/';
     const BackIcon = isRtl ? ArrowRight : ArrowLeft;
@@ -24,11 +23,11 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
     // Resolve title: check exact match first, then prefix match (for /aya/:id)
     let title = pageTitles[location.pathname];
     if (!title && location.pathname.startsWith('/aya/')) {
-        title = { ar: 'تفاصيل الآية', en: 'Aya Details' };
+        title = { ar: 'القراءات في الآية', en: 'Aya Details' };
     }
     const displayTitle = title
         ? (isRtl ? title.ar : title.en)
-        : '';
+        : (isHome ? dict.home.title : '');
 
     return (
         <header className="fixed top-0 left-0 right-0 z-40" dir={isRtl ? 'rtl' : 'ltr'}>
