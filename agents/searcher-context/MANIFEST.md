@@ -29,12 +29,13 @@ Prefer direct source inspection for implementation decisions. Treat these files 
 
 ## Development Quick Start
 
-The active React web app is `qeraat-native`, served by Vite.
+The active React web app is `qeraat-native`, served by Vite. From the `QeraatSearcher` repository root, use `.\run-web-app.cmd` to launch it; this script handles the correct app directory, bundled Node/npm path, logs, dependency install option, and the fixed local host/port.
 
 - Prerequisites: Node.js 18+ and npm 9+ for web development. Native targets additionally need Android Studio/Android SDK/JDK 17 for Android, Xcode/CocoaPods on macOS for iOS, and the Electron package under `qeraat-native/electron` for Windows desktop packaging.
 - This machine currently has Node/npm available through Visual Studio's bundled Node path, not the default shell PATH: `C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Microsoft\VisualStudio\NodeJs`.
-- Dependencies can be installed from `QeraatSearcher/qeraat-native` with `npm install`; if npm cannot write to the user cache under sandboxing, use a project-local cache such as `npm install --cache .npm-cache`.
-- Run the web app from `QeraatSearcher/qeraat-native` with `npm run dev -- --host 127.0.0.1`; the default local URL is `http://127.0.0.1:5173/`.
+- Dependencies can be installed through the launcher with `.\run-web-app.cmd -Install`; it uses a project-local npm cache.
+- Run the web app with `.\run-web-app.cmd`; the default local URL is `http://127.0.0.1:5173/`.
+- If a future Codex thread is asked to run the app, run `D:\Repos\QuranHolder\QeraatSearcher\run-web-app.cmd` directly. In sandboxed shells Vite may fail with `spawn EPERM`; rerun the launcher with escalation instead of investigating the stack again.
 - On 2026-05-01, `npm install --cache .npm-cache` completed and Vite served the app successfully at `http://127.0.0.1:5173/`; an HTTP smoke check returned status 200.
 - The install reported `10 vulnerabilities` (`2 moderate`, `8 high`) in the npm dependency tree. Do not run `npm audit fix` automatically; review dependency impact first.
 

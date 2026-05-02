@@ -33,9 +33,7 @@ $env:PATH = "$nodeDir;$env:PATH"
 From this repository root:
 
 ```powershell
-cd qeraat-native
-npm install
-npm run dev -- --host 127.0.0.1
+.\run-web-app.cmd
 ```
 
 Then open:
@@ -47,7 +45,7 @@ http://127.0.0.1:5173/
 If npm cannot write to the user cache in a sandboxed shell, use a project-local cache:
 
 ```powershell
-npm install --cache .npm-cache
+.\run-web-app.cmd -Install
 ```
 
 ## Useful Commands

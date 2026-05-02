@@ -144,7 +144,7 @@ export default function SearchFilters({ filters, onChange, allTags, allQarees, a
                 <select
                     value={filters.sora}
                     onChange={e => set({ sora: Number(e.target.value) })}
-                    className="py-2 px-3 border rounded-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[140px] sm:w-[160px] truncate shadow-sm me-3"
+                    className="qeraat-select py-2 ps-3 pe-10 border rounded-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-sm font-arabic outline-none focus:ring-2 focus:ring-blue-400 w-[140px] sm:w-[160px] truncate shadow-sm me-3"
                     title={dict.search.sora}
                 >
                     <option value={0}>{isRtl ? 'جميع السور' : 'All Surahs'}</option>
@@ -218,7 +218,7 @@ export default function SearchFilters({ filters, onChange, allTags, allQarees, a
 
             {allTags.length > 0 && (
                 <div>
-                    <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="flex items-center justify-start gap-3 mb-4">
                         <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                             {dict.home.tags}
                         </p>
