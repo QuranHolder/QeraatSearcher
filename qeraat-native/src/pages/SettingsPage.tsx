@@ -1,9 +1,11 @@
-import { useRef } from 'react';
-import { Settings } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Settings, DownloadCloud } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale';
 import { useSettings } from '../hooks/useSettings';
+import { updateDatabases } from '../lib/ota-service';
 
 export default function SettingsPage() {
+    const [otaProgress, setOtaProgress] = useState<{ progress: number; status: string } | null>(null);
     const { dict, isRtl, locale, setLocale } = useLocale();
     const { settings, updateSettings } = useSettings();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -94,6 +96,23 @@ export default function SettingsPage() {
         reader.readAsText(file);
     };
 
+    const handleOtaUpdate = async () => {
+        try {
+            setOtaProgress({ progress: 0, status: (dict.common as any).otaUpdating || 'Updating...' });
+            await updateDatabases((progress, status) => {
+                // If it's a generic english message, we just pass it, the UI could map it if needed,
+                // but progress percentage is more important
+                setOtaProgress({ progress, status: (dict.common as any).otaUpdating || status });
+            });
+            alert((dict.common as any).otaUpdateSuccess || 'Databases updated successfully! Reloading...');
+            window.location.reload();
+        } catch (err) {
+            console.error('OTA Update failed', err);
+            alert((dict.common as any).otaUpdateError || 'Failed to update databases.');
+            setOtaProgress(null);
+        }
+    };
+
     return (
         <main className="min-h-screen p-4 sm:p-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
             <div className="max-w-2xl mx-auto">
@@ -148,6 +167,49 @@ export default function SettingsPage() {
                                 <option value="200">200</option>
                                 <option value="500">500</option>
                             </select>
+                        </div>
+
+                        {/* Divider */}
+                        <hr className="my-6 border-gray-100 dark:border-gray-700/60" />
+
+                        {/* OTA Update */}
+                        <div>
+                            <h3 className="font-semibold text-gray-800 dark:text-gray-200 font-arabic mb-4">
+                                {(dict.common as any).otaUpdate || 'OTA Database Update'}
+                            </h3>
+                            <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/20 flex flex-col items-start gap-4">
+                                <div>
+                                    <div className="font-medium text-gray-800 dark:text-gray-200 font-arabic text-sm flex items-center gap-2">
+                                        <DownloadCloud size={18} className="text-blue-600 dark:text-blue-400" />
+                                        {(dict.common as any).otaUpdate || 'OTA Database Update'}
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 font-arabic leading-relaxed">
+                                        {(dict.common as any).otaUpdateDesc || 'Download the latest database updates directly to your device for offline use.'}
+                                    </p>
+                                </div>
+                                
+                                {otaProgress ? (
+                                    <div className="w-full">
+                                        <div className="flex justify-between text-xs mb-1.5 font-arabic">
+                                            <span className="text-blue-600 dark:text-blue-400">{otaProgress.status}</span>
+                                            <span className="text-gray-600 dark:text-gray-400 font-mono">{Math.round(otaProgress.progress)}%</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                                            <div 
+                                                className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out" 
+                                                style={{ width: `${otaProgress.progress}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={handleOtaUpdate}
+                                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-lg text-sm font-medium transition-all font-arabic w-full sm:w-auto shadow-sm"
+                                    >
+                                        {(dict.common as any).otaUpdateNow || 'Update Now'}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {/* Divider */}

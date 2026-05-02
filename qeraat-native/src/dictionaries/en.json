@@ -86,6 +86,12 @@
     "importSuccess": "Data imported successfully!",
     "importError": "Invalid backup file.",
     "copiedToClipboard": "Backup data copied to clipboard!",
+    "otaUpdate": "OTA Database Update",
+    "otaUpdateDesc": "Download the latest database updates directly to your device for offline use.",
+    "otaUpdateNow": "Update Now",
+    "otaUpdating": "Updating...",
+    "otaUpdateSuccess": "Databases updated successfully! Reloading...",
+    "otaUpdateError": "Failed to update databases.",
     "aboutApp": "About App"
   },
   "about": {

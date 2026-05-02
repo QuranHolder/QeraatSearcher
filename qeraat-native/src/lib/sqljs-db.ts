@@ -29,22 +29,35 @@ export async function initDatabase(): Promise<{ db: Database; dbMore: Database }
         });
     }
 
-    const [db1Response, db2Response] = await Promise.all([
-        fetch(`${baseUrl}/db/qeraat_data_v1.db`),
-        fetch(`${baseUrl}/db/qeraat_more_v1.db`)
-    ]);
-
-    if (!db1Response.ok) {
-        throw new Error(`Failed to fetch database 1: ${db1Response.statusText}`);
-    }
-    if (!db2Response.ok) {
-        throw new Error(`Failed to fetch database 2: ${db2Response.statusText}`);
-    }
+    const { getDatabaseFromCache } = await import('./ota-service');
     
-    const [buffer1, buffer2] = await Promise.all([
-        db1Response.arrayBuffer(),
-        db2Response.arrayBuffer()
-    ]);
+    let buffer1 = await getDatabaseFromCache('qeraat_data_v1.db');
+    let buffer2 = await getDatabaseFromCache('qeraat_more_v1.db');
+
+    if (!buffer1 || !buffer2) {
+        console.log("Databases not found in cache. Fetching from network...");
+        const [db1Response, db2Response] = await Promise.all([
+            !buffer1 ? fetch(`${baseUrl}/db/qeraat_data_v1.db`) : Promise.resolve(null),
+            !buffer2 ? fetch(`${baseUrl}/db/qeraat_more_v1.db`) : Promise.resolve(null)
+        ]);
+
+        if (db1Response && !db1Response.ok) {
+            throw new Error(`Failed to fetch database 1: ${db1Response.statusText}`);
+        }
+        if (db2Response && !db2Response.ok) {
+            throw new Error(`Failed to fetch database 2: ${db2Response.statusText}`);
+        }
+        
+        const [fetchedBuffer1, fetchedBuffer2] = await Promise.all([
+            db1Response ? db1Response.arrayBuffer() : Promise.resolve(buffer1!),
+            db2Response ? db2Response.arrayBuffer() : Promise.resolve(buffer2!)
+        ]);
+
+        buffer1 = fetchedBuffer1;
+        buffer2 = fetchedBuffer2;
+    } else {
+        console.log("Databases loaded from local cache.");
+    }
 
     db = new SQL.Database(new Uint8Array(buffer1));
     dbMore = new SQL.Database(new Uint8Array(buffer2));
