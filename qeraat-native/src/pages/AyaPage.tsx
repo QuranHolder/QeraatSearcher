@@ -77,6 +77,18 @@ function QareeCard({
     );
 }
 
+function buildReadingText(item: QuranData): string {
+    const subject = item.sub_subject1 || item.sub_subject || '';
+    const showResultNew = !!item.resultnew;
+    const prefix = item.qarees === 'الباقون' ? 'الباقون: ' : '';
+
+    return [
+        subject + (showResultNew ? `: ${item.resultnew}` : ''),
+        item.reading || '',
+        item.qareesrest ? `${prefix}${item.qareesrest}` : (item.qarees ? `[${item.qarees}]` : ''),
+    ].filter(Boolean).join('\n');
+}
+
 // ─── Reading card ─────────────────────────────────────────────────────────────
 function ReadingCard({
     item,
@@ -92,11 +104,7 @@ function ReadingCard({
     const subject = item.sub_subject1 || item.sub_subject || '';
     const showResultNew = !!item.resultnew;
 
-    const shareText = [
-        subject + (showResultNew ? `: ${item.resultnew}` : ''),
-        item.reading || '',
-        item.qareesrest ? (item.qarees === 'الباقون' ? `الباقون: ${item.qareesrest}` : item.qareesrest) : '',
-    ].filter(Boolean).join('\n');
+    const shareText = buildReadingText(item);
 
     const handleCopy = async () => {
         try {
@@ -164,19 +172,19 @@ function ReadingCard({
                 <div className="flex flex-wrap gap-1.5 mb-3">
                     {/* Page Number 1 */}
                     {item.page_number1 && (
-                        <span className="px-1.5 py-0.5 text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800">
-                            صفحة المدينة: {item.page_number1}
+                        <span className="px-1.5 py-0 text-[9px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800">
+                            المدينة: {item.page_number1}
                         </span>
                     )}
                     {/* Page Number 2 */}
                     {item.page_number2 && (
-                        <span className="px-1.5 py-0.5 text-[10px] bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded border border-amber-100 dark:border-amber-800">
-                            صفحة الشمرلي: {item.page_number2}
+                        <span className="px-1.5 py-0 text-[9px] bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded border border-amber-100 dark:border-amber-800">
+                            الشمرلي: {item.page_number2}
                         </span>
                     )}
                     {/* Tags */}
                     {item.tags?.split(',').filter(Boolean).map((t, i) => (
-                        <span key={i} className="px-1.5 py-0.5 text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded border border-emerald-100 dark:border-emerald-800">
+                        <span key={i} className="px-1.5 py-0 text-[9px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded border border-emerald-100 dark:border-emerald-800">
                             {t.trim()}
                         </span>
                     ))}
@@ -209,6 +217,7 @@ export default function AyaPage() {
         shawahidSoghra?: import('../lib/types').BookShawahid | null;
         shawahidTayba?: import('../lib/types').BookTaybashahid | null;
     } | null>(null);
+    const [copiedAll, setCopiedAll] = useState(false);
 
     useEffect(() => {
         if (dbState.status !== 'ready') return;
@@ -240,6 +249,27 @@ export default function AyaPage() {
 
     // Prefer text_full if available
     const ayaText = aya.text_full || aya.text;
+    const fullAyaInfo = `${ayaText} (${sora?.sora_name}:${aya.aya})`;
+
+    const handleCopyAll = async () => {
+        const variantsText = quranData.map(item => buildReadingText(item)).join('\n\n---\n\n');
+        const text = `${fullAyaInfo}\n\n${variantsText}`;
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopiedAll(true);
+            setTimeout(() => setCopiedAll(false), 2000);
+        } catch { /* ignore */ }
+    };
+
+    const handleShareAll = async () => {
+        const variantsText = quranData.map(item => buildReadingText(item)).join('\n\n---\n\n');
+        const text = `${fullAyaInfo}\n\n${variantsText}`;
+        if (navigator.share) {
+            try { await navigator.share({ text }); } catch { /* ignore */ }
+        } else {
+            handleCopyAll();
+        }
+    };
 
     return (
         <main className="min-h-screen p-2 sm:p-4 pt-1 pb-[calc(env(safe-area-inset-bottom)+1rem)]" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -272,6 +302,31 @@ export default function AyaPage() {
                 {/* Readings */}
                 {quranData.length > 0 && (
                     <div className="space-y-4">
+                        <div className="flex items-center justify-between mb-2 px-1">
+                            <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200">
+                                {dict.aya.readings}
+                            </h2>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleCopyAll}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 transition-all text-xs font-medium shadow-sm"
+                                    title={dict.aya.copyAll}
+                                >
+                                    {copiedAll ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                    <span className="hidden sm:inline">{dict.aya.copyAll}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleShareAll}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 transition-all text-xs font-medium shadow-sm"
+                                    title={dict.aya.shareAll}
+                                >
+                                    <Share2 size={14} />
+                                    <span className="hidden sm:inline">{dict.aya.shareAll}</span>
+                                </button>
+                            </div>
+                        </div>
 
                         {/* Shawahid Section */}
                         {((data.shawahidSoghra && data.shawahidSoghra.text) || (data.shawahidTayba && data.shawahidTayba.text)) && (
@@ -279,7 +334,7 @@ export default function AyaPage() {
                                 {data.shawahidSoghra && data.shawahidSoghra.text && (
                                     <div className="p-4 rounded-xl bg-blue-50/80 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 shadow-sm">
                                         <h3 className="font-bold text-sm mb-2 opacity-80 border-b border-blue-200/50 dark:border-blue-800/50 pb-1 w-max">شواهد العشر الصغرى</h3>
-                                        <div 
+                                        <div
                                             className="font-nask text-base leading-relaxed whitespace-pre-wrap"
                                             dangerouslySetInnerHTML={{ __html: data.shawahidSoghra.text }}
                                         />
@@ -288,7 +343,7 @@ export default function AyaPage() {
                                 {data.shawahidTayba && data.shawahidTayba.text && (
                                     <div className="p-4 rounded-xl bg-[#800000]/5 dark:bg-[#800000]/30 border border-[#800000]/20 dark:border-[#800000]/50 text-[#800000] dark:text-[#ff9999] shadow-sm">
                                         <h3 className="font-bold text-sm mb-2 opacity-80 border-b border-[#800000]/20 dark:border-[#800000]/50 pb-1 w-max">شواهد الطيبة</h3>
-                                        <div 
+                                        <div
                                             className="font-nask text-base leading-relaxed whitespace-pre-wrap"
                                             dangerouslySetInnerHTML={{ __html: data.shawahidTayba.text }}
                                         />

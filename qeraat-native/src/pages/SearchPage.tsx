@@ -14,9 +14,16 @@ function buildShareText(item: QuranData): string {
     const subject = item.sub_subject1 || item.sub_subject || '';
     const result = item.resultnew ? `${subject}: ${item.resultnew}` : subject;
     const reading = item.reading ? `\n${item.reading}` : '';
-    const qarees = item.qarees ? `\n[${item.qarees}]` : '';
-    const qareesrest = item.qareesrest ? (item.qarees === 'الباقون' ? `\nالباقون: ${item.qareesrest}` : `\n${item.qareesrest}`) : '';
-    return `${title}\n${result}${reading}${qarees}${qareesrest}`;
+    
+    let qareesPart = '';
+    if (item.qareesrest) {
+        const prefix = item.qarees === 'الباقون' ? 'الباقون: ' : '';
+        qareesPart = `\n${prefix}${item.qareesrest}`;
+    } else if (item.qarees) {
+        qareesPart = `\n[${item.qarees}]`;
+    }
+    
+    return `${title}\n${result}${reading}${qareesPart}`;
 }
 
 // ─── Tag chip component ───────────────────────────────────────────────────────
@@ -170,19 +177,19 @@ function ResultCard({ item }: { item: QuranData }) {
                         <div className="flex flex-wrap gap-1.5 mt-4 border-t border-gray-50 dark:border-gray-700/30 pt-3">
                             {/* Page Number 1 */}
                             {item.page_number1 && (
-                                <span className="px-2 py-0.5 text-[10px] bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md border border-blue-100 dark:border-blue-800/30 font-medium">
-                                    مدينة: {item.page_number1}
+                                <span className="px-1.5 py-0 text-[9px] bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md border border-blue-100 dark:border-blue-800/30 font-medium">
+                                    المدينة: {item.page_number1}
                                 </span>
                             )}
                             {/* Page Number 2 */}
                             {item.page_number2 && (
-                                <span className="px-2 py-0.5 text-[10px] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-md border border-amber-100 dark:border-amber-800/30 font-medium">
-                                    شمرلي: {item.page_number2}
+                                <span className="px-1.5 py-0 text-[9px] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-md border border-amber-100 dark:border-amber-800/30 font-medium">
+                                    الشمرلي: {item.page_number2}
                                 </span>
                             )}
                             {/* Tags */}
                             {item.tags?.split(',').filter(Boolean).map((t, i) => (
-                                <span key={i} className="px-2 py-0.5 text-[10px] bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md border border-emerald-100 dark:border-emerald-800/30 font-medium">
+                                <span key={i} className="px-1.5 py-0 text-[9px] bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md border border-emerald-100 dark:border-emerald-800/30 font-medium">
                                     {t.trim()}
                                 </span>
                             ))}
@@ -251,6 +258,7 @@ export default function SearchPage() {
     // SQL debug panel
     const [showSqlDebug, setShowSqlDebug] = useState(false);
     const [sqlCopied, setSqlCopied] = useState(false);
+    const [copiedAll, setCopiedAll] = useState(false);
 
     // Saved filters
     const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
@@ -444,6 +452,26 @@ export default function SearchPage() {
             setSqlCopied(true);
             setTimeout(() => setSqlCopied(false), 2000);
         } catch { /* ignore */ }
+    };
+
+    const handleCopyAll = async () => {
+        if (results.length === 0) return;
+        const text = results.map(item => buildShareText(item)).join('\n\n---\n\n');
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopiedAll(true);
+            setTimeout(() => setCopiedAll(false), 2000);
+        } catch { /* ignore */ }
+    };
+
+    const handleShareAll = async () => {
+        if (results.length === 0) return;
+        const text = results.map(item => buildShareText(item)).join('\n\n---\n\n');
+        if (navigator.share) {
+            try { await navigator.share({ text }); } catch { /* ignore */ }
+        } else {
+            handleCopyAll();
+        }
     };
 
 
@@ -794,10 +822,34 @@ export default function SearchPage() {
                     ) : (
                         <>
                             {(q || hasActiveFilters) && (
-                                <h1 className="text-base font-semibold mb-4 text-gray-700 dark:text-gray-200">
-                                    {q && <>{dict.search.resultsFor} «{q}»{' '}</>}
-                                    <span className="text-gray-400 font-normal text-sm">({results.length} {dict.search.found})</span>
-                                </h1>
+                                <div className="flex items-center justify-between mb-4 gap-4">
+                                    <h1 className="text-base font-semibold text-gray-700 dark:text-gray-200">
+                                        {q && <>{dict.search.resultsFor} «{q}»{' '}</>}
+                                        <span className="text-gray-400 font-normal text-sm">({results.length} {dict.search.found})</span>
+                                    </h1>
+                                    {results.length > 0 && (
+                                        <div className="flex gap-2 shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={handleCopyAll}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 transition-all text-xs font-medium shadow-sm"
+                                                title={dict.search.copyAll}
+                                            >
+                                                {copiedAll ? <Check size={14} /> : <Copy size={14} />}
+                                                <span className="hidden sm:inline">{dict.search.copyAll}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleShareAll}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 transition-all text-xs font-medium shadow-sm"
+                                                title={dict.search.shareAll}
+                                            >
+                                                <Share2 size={14} />
+                                                <span className="hidden sm:inline">{dict.search.shareAll}</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                             <div className="space-y-3">
                                 {results.length === 0 && (q || hasActiveFilters)

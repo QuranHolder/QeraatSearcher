@@ -33,7 +33,9 @@
     "excludeHafsa": "استثناء ما وافق حفصاً",
     "wholeWord": "كلمة كاملة",
     "copy": "نسخ النتيجة",
+    "copyAll": "نسخ الكل",
     "share": "مشاركة",
+    "shareAll": "مشاركة الكل",
     "copied": "تم النسخ!",
     "clearFilters": "مسح التصفية",
     "showFilters": "إظهار التصفية",
@@ -60,7 +62,9 @@
     "readers": "القراء",
     "narrator": "الراوي",
     "copyResult": "نسخ",
+    "copyAll": "نسخ الكل",
     "shareResult": "مشاركة",
+    "shareAll": "مشاركة الكل",
     "copied": "تم النسخ!"
   },
   "common": {

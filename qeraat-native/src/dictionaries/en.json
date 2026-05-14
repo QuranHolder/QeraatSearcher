@@ -33,7 +33,9 @@
     "excludeHafsa": "Exclude matches with Hafs",
     "wholeWord": "Whole word",
     "copy": "Copy",
+    "copyAll": "Copy All",
     "share": "Share",
+    "shareAll": "Share All",
     "copied": "Copied!",
     "clearFilters": "Clear Filters",
     "showFilters": "Show Filters",
@@ -60,7 +62,9 @@
     "readers": "Readers",
     "narrator": "Narrator",
     "copyResult": "Copy",
+    "copyAll": "Copy All",
     "shareResult": "Share",
+    "shareAll": "Share All",
     "copied": "Copied!"
   },
   "common": {
