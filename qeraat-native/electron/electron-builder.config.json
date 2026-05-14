@@ -8,7 +8,9 @@
     "assets/**/*",
     "build/**/*",
     "capacitor.config.*",
-    "app/**/*"
+    "app/**/*",
+    "package.json",
+    "node_modules/**/*"
   ],
   "nsis": {
     "allowElevation": true,
@@ -17,7 +19,7 @@
   },
   "win": {
     "target": "nsis",
-    "icon": "assets/appIcon.ico"
+    "icon": "resources/icon.ico"
   },
   "mac": {
     "category": "your.app.category.type",
