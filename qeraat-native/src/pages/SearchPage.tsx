@@ -382,9 +382,35 @@ export default function SearchPage() {
 
     const toggleQaree = (qkey: string) => {
         setIncludeQarees(prev => {
-            const n = new Set(prev);
-            if (n.has(qkey)) n.delete(qkey); else n.add(qkey);
-            return n;
+            const next = new Set(prev);
+            const isQ = /^Q\d+$/.test(qkey);
+
+            if (next.has(qkey)) {
+                // Unselecting
+                next.delete(qkey);
+                if (isQ) {
+                    const qNum = qkey.slice(1);
+                    // Also unselect narrators under it
+                    allQarees.forEach(r => {
+                        if (r.qkey.startsWith(`R${qNum}_`)) {
+                            next.delete(r.qkey);
+                        }
+                    });
+                }
+            } else {
+                // Selecting
+                next.add(qkey);
+                if (isQ) {
+                    const qNum = qkey.slice(1);
+                    // Also select narrators under it
+                    allQarees.forEach(r => {
+                        if (r.qkey.startsWith(`R${qNum}_`)) {
+                            next.add(r.qkey);
+                        }
+                    });
+                }
+            }
+            return next;
         });
     };
 

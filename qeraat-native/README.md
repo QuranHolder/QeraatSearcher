@@ -125,3 +125,6 @@ If you need to update the Quran database:
 - **Offline Mode**: The database (~27MB) is fetched on first launch and kept in memory. No internet is required after the app is installed and opened once.
 - **RTL Support**: The app automatically detects the selected language (Arabic/English) and flips the UI layout (Right-to-Left for Arabic).
 - **Storage**: Since the DB is in memory, closing the app completely releases the memory.
+
+## Manually  publish to web
+cd qeraat-native; npm run build:web; npx wrangler deploy
