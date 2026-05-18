@@ -63,6 +63,7 @@ export interface QuranData {
   count_words?: number;
   qarees?: string;
   qareesrest?: string;
+  pngs?: string;
 
   // Qira'at boolean flags (NULL or 1)
   Q1?: string | number; Q2?: string | number; Q3?: string | number;
