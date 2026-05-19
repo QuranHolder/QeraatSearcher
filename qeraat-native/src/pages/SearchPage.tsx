@@ -172,21 +172,6 @@ function ResultCard({ item }: { item: QuranData }) {
                         )}
                     </div>
 
-                    {/* Images / PNGs */}
-                    {item.pngs && (
-                        <div className="flex flex-wrap gap-2 mt-3" dir="rtl">
-                            {item.pngs.split(',').filter(Boolean).map((png, idx) => (
-                                <img 
-                                    key={idx} 
-                                    src={`/resultnew_pic/${png.trim()}.png`} 
-                                    alt={`Reading ${png}`} 
-                                    className="max-h-24 sm:max-h-32 object-contain rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 bg-transparent"
-                                    loading="lazy"
-                                />
-                            ))}
-                        </div>
-                    )}
-
                     {/* Tags & Page Numbers Footer */}
                     {(item.tags || item.page_number1 || item.page_number2) && (
                         <div className="flex flex-wrap gap-1.5 mt-4 border-t border-gray-50 dark:border-gray-700/30 pt-3">
